@@ -12,8 +12,7 @@ class GanttChart:
     """ Represents Gantt Chart """
     def __init__(self, title):
         self.title = title
-        self.categories = {}
-        self.tasks = {}
+        self.tasks = []
         
     def __repr__(self):
         return "Gantt Chart: %s" % self.title

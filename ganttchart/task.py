@@ -3,6 +3,7 @@
 from datetime import datetime
 from exceptions import *
 import Image, ImageDraw
+from utils import *
 
 class Task:
     """ Represents task """
@@ -10,9 +11,12 @@ class Task:
         self.title = title
         self.owner = owner
         self.category = category
+
+        from_date = parse_date(from_date)
+        till_date = parse_date(till_date)
+
         if from_date and till_date:
-            if not isinstance(from_date, datetime) or not isinstance(till_date, datetime)\
-            or not from_date < till_date:
+            if not from_date or not till_date or not from_date < till_date:
                 raise DatesError
             self.from_date = from_date
             self.till_date = till_date
