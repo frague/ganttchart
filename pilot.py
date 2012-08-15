@@ -9,6 +9,10 @@ if __name__ == "__main__":
 
     c.tasks.append(task.Task("", cat1, "Nick Bogdanov", "06/03/2012", "08/03/2012")) 
     c.tasks.append(task.Task("", cat2, "Nick Bogdanov", "08/06/2012", "08/20/2012")) 
+    
+    c.tasks.append(task.Task("", cat1, "Dmitry Russkikh", "06/03/2012", "08/03/2012")) 
+    c.tasks.append(task.Task("", cat1, "Max Lvov", "06/03/2012", "08/03/2012")) 
+    c.tasks.append(task.Task("", cat1, "Roman Bogorodskiy", "06/03/2012", "08/03/2012")) 
 
-    r = render.Render(600, 400)
+    r = render.Render(600)
     r.process(c)
