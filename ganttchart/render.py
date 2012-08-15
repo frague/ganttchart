@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from exceptions import *
-import Image, ImageDraw, ImageFont
+import Image, ImageDraw, ImageFont, ImageOps
 from random import randint as rint
 
 import chart
@@ -14,19 +14,24 @@ class Render:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.font = ImageFont.truetype("/home/nick/dev/gantt/ganttchart/fonts/Cuprum-Regular.ttf", 15)
-        self.image = Image.new("RGB", (self.width, self.height), "#FFFFFF")
+        self.font = ImageFont.truetype("/home/nick/dev/gantt/ganttchart/fonts/Cuprum-Regular.ttf", 12)
+        self.image = Image.new("RGBA", (self.width, self.height), "#FFFFFF")
         self.draw = ImageDraw.Draw(self.image)
 
-    def process(self, chart):    
-        r,g,b = rint(0,255), rint(0,255), rint(0,255)
-        dr = (rint(0,255) - r)/300.
-        dg = (rint(0,255) - g)/300.
-        db = (rint(0,255) - b)/300.
-        for i in range(300):
-            r,g,b = r+dr, g+dg, b+db
-            #self.draw.line((i,0,i,300), fill=(int(r),int(g),int(b)))
+    def _text(self, x, y, text, fill="#000000"):
+        self.draw.text((x, y), text, font=self.font, fill=fill)
 
-        self.draw.text((10, 25), "world", font=self.font, fill=128)
+    def _vert_text(self, x, y, text, fill="#000000"):
+        tmp_image = Image.new("RGBA", self.font.getsize(text))
+        d = ImageDraw.Draw(tmp_image)
+        d.text( (0, 0), text,  font=self.font, fill=fill)
+        rotated = tmp_image.rotate(90,  expand=1)
+        self.image.paste(rotated, (x, y), rotated)
+
+    def _box(self, x, y, width, height, fill="#000000"):
+        self.draw.rectangle((x, y, x + width, y + height), fill=fill)
+
+    def process(self, chart): 
+
         self.image.save("out.png", "PNG")
 

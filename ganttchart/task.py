@@ -6,8 +6,9 @@ import Image, ImageDraw
 
 class Task:
     """ Represents task """
-    def __init__(self, title, category, from_date=None, till_date=None, depends_on=None, length=None):
+    def __init__(self, title, category, owner, from_date=None, till_date=None, depends_on=None, length=None):
         self.title = title
+        self.owner = owner
         self.category = category
         if from_date and till_date:
             if not isinstance(from_date, datetime) or not isinstance(till_date, datetime)\
