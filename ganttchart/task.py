@@ -10,7 +10,7 @@ class Task:
         self.title = title
         self.category = category
         if from_date and till_date:
-            if not isinstance(from_date, datetime) or not isinstance(till_date, datetime)
+            if not isinstance(from_date, datetime) or not isinstance(till_date, datetime)\
             or not from_date < till_date:
                 raise DatesError
             self.from_date = from_date
