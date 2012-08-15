@@ -13,7 +13,7 @@ class Render:
     """ Renders Gantt Chart as image"""
     def __init__(self, width):
         self.width = width
-        self.task_height = 20
+        self.task_height = 14
         self.font = ImageFont.truetype("/home/nick/dev/gantt/ganttchart/fonts/Cuprum-Regular.ttf", 12)
 
     def _text(self, x, y, text, fill="#000000"):
@@ -32,6 +32,12 @@ class Render:
         self.draw.line((x, y + height, x + width, y + height), fill=fill)
         self.draw.line((x + width, y + height, x + width, y), fill=fill)
         self.draw.line((x + width, y, x, y), fill=fill)
+
+    def _draw_task(self, task, coords, offset, y):
+        x = offset + coords[task.from_date]
+        w = int(coords[task.till_date] - coords[task.from_date] + self.day_length)
+        self._box(x, y, w, self.task_height - 4)
+        self.draw.rectangle((x + 1, y + 1, x + w - 1, y + self.task_height - 5), task.category.color)
 
     def process(self, chart):
         self.height = 70 + self.task_height * (1 + len(chart.tasks))
@@ -56,35 +62,39 @@ class Render:
                 left_offset = o
 
         active_width = self.width - left_offset - 30
-        self._box(20 + left_offset, 20, active_width, self.height - 90, "#E0E0E0")
+        self._box(20 + left_offset, 20, active_width, self.height - 88, "#E0E0E0")
         
-        i = 1
-        for n in tasks_by_owners.keys():
-            self._text(10, self.task_height * i, n)
-            i += len(tasks_by_owners[n])
-
         days = []
         d = min_date
-        while d < max_date:
-            if not d.weekday in (5, 6):
+        while d <= max_date:
+            if d.weekday() not in [5, 6]:
                 days.append(d)
             d += datetime.timedelta(days=1)
         
         coords = {}
-        day_length = active_width / len(days)
+        self.day_length = active_width / float(len(days))
         for i in range(0, len(days)):
-            coords[days[i]] = int(i * day_length)
+            coords[days[i]] = int(i * self.day_length)
 
         visible = 1
-        while visible * day_length < 20:
+        while visible * self.day_length < 20:
             visible += 1
 
-        for i in range(0, int(math.ceil(len(days) / visible))):
+        for i in range(0, int(math.ceil(len(days) / float(visible)))):
             x = coords[days[i * visible]] + 20 + left_offset
 
-            self.draw.line((x, 20, x, self.height - 70), "#F0F0F0")
-            self._vert_text(x - 5, self.height - 60, printable_date(days[i]))
+            self.draw.line((x, 20, x, self.height - 68), "#F0F0F0")
+            self._vert_text(x - 5, self.height - 60, printable_date(days[i * visible]))
+        #self._vert_text(20 + left_offset + active_width - 5, self.height - 60, printable_date(max_date))
 
-        
-        
+        i = 0
+        for n in tasks_by_owners.keys():
+            y = 20 + self.task_height * i 
+            self._text(10, y - 2, n)
+            for t in tasks_by_owners[n]:
+                self._draw_task(t, coords, 20 + left_offset, y)
+                y += self.task_height
+
+            i += len(tasks_by_owners[n])
+
         self.image.save("out.png", "PNG")
