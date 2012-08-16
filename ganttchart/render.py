@@ -43,18 +43,19 @@ class Render:
         self.draw.rectangle((x + 1, y + 1, x + w - 1, y + self.task_height - 5), task.category.color)
         self._text(x + 2, y - 2, task.category.title)
 
-    def _milestone(self, date, fill="#808080"):
+    def _milestone(self, date, fill="#808080", textfill="#808080"):
         if date not in self.coords:
             return
         x = self.coords[date] + 20 + self.left_offset
 
-        self.draw.line((x, 20, x, self.height - 68), fill)
-        self._vert_text(x - 5, self.height - 60, printable_date(date), fill)
+        self.draw.line((x, 21, x, self.height - 70), fill)
+        self._vert_text(x - 5, self.height - 60, printable_date(date), textfill)
 
     def _border(self, text, y, fill="#808080"):
         if y > 20:
-            self.draw.line((20 + self.left_offset, y, 20 + self.left_offset + self.active_width, y), fill=fill)
-        self._vert_text(18 + self.left_offset + self.active_width, y, text, fill=fill, angle=270)
+            self.draw.line((21 + self.left_offset, y, 18 + self.left_offset + self.active_width, y), fill=fill)
+        if text:
+            self._vert_text(18 + self.left_offset + self.active_width, y, text, fill=fill, angle=270)
 
     def process(self, chart):
         self.height = 70 + self.task_height * (1 + len(chart.tasks))
@@ -106,8 +107,8 @@ class Render:
             visible += 1
 
         for i in range(0, int(math.ceil(len(days) / float(visible)))):
-            self._milestone(days[i * visible], "#D0D0D0")
-        self._milestone(datetime.date.today(), "#FF0000")
+            self._milestone(days[i * visible], "#808080" if not i else "#F0F0F0", "#808080")
+        self._milestone(datetime.date.today(), "#FF0000", "#FF0000")
 
         i = 0
         y = 20
@@ -121,6 +122,7 @@ class Render:
                     t = owner_tasks[d]
                     self._draw_task(t, y)
                     y += self.task_height
+                self._border(None, y - 2, "#F0F0F0")
 
                 i += len(tasks_by_owners[n])
 
