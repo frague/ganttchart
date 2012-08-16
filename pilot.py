@@ -6,11 +6,21 @@ from utils import *
 from logger import get_logger
 import re
 
+colors = [
+        "#00CCFF", "#CCFFFF", "#CCFFCC", "#FFFF99",  
+        "#99CCFF", "#FF99CC", "#CC99FF", "#FFCC99",  
+        "#3366FF", "#33CCCC", "#99CC00", "#FFCC00",
+        "#FF9900", "#FF6600", "#666699", "#969696",  
+        "#003300", "#339966", "#003300", "#333300",  
+        "#993300", "#993366", "#333399", "#333333"]
+
+
 def parse_table(page, table_title, chart):
     #{csv:output=wiki|id=Saratov}
     pattern = re.compile("{csv[^}]+id=%s}([^{]*){csv}" % table_title)
     found = pattern.search(page)
     if found:
+        color_index = 0
         table = found.group(1)
         categories = {}
         for line in table.split("\n"):
@@ -22,9 +32,10 @@ def parse_table(page, table_title, chart):
             if cat == "Category":
                 continue
             if cat not in categories:
-                categories[cat] = category.Category(c, "#808080")
+                categories[cat] = category.Category(cat, colors[color_index])
+                color_index += 1
             cat = categories[cat]
-            chart.tasks.append(task.Task("", cat, owner, from_date, till_date)) 
+            chart.tasks.append(task.Task("", cat, pool.strip(), owner.strip(), from_date, till_date)) 
 
 if __name__ == "__main__":
     LOGGER = get_logger(__name__)
