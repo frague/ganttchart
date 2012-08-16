@@ -55,8 +55,8 @@ class Render:
                 max_date = task.till_date
             owner = task.owner
             if owner not in tasks_by_owners:
-                tasks_by_owners[owner] = []
-            tasks_by_owners[owner].append(task)
+                tasks_by_owners[owner] = {}
+            tasks_by_owners[owner][task.from_date] = task
             o = self.font.getsize(owner)[0]
             if o > left_offset:
                 left_offset = o
@@ -85,13 +85,14 @@ class Render:
 
             self.draw.line((x, 20, x, self.height - 68), "#F0F0F0")
             self._vert_text(x - 5, self.height - 60, printable_date(days[i * visible]))
-        #self._vert_text(20 + left_offset + active_width - 5, self.height - 60, printable_date(max_date))
 
         i = 0
         for n in tasks_by_owners.keys():
             y = 20 + self.task_height * i 
             self._text(10, y - 2, n)
-            for t in tasks_by_owners[n]:
+            owner_tasks = tasks_by_owners[n]
+            for d in sorted(owner_tasks.iterkeys()):
+                t = owner_tasks[d]
                 self._draw_task(t, coords, 20 + left_offset, y)
                 y += self.task_height
 
