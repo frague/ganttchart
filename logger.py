@@ -4,7 +4,7 @@ import logging.handlers
 
 __author__ = 'Nick Bogdanov <nbogdanov@griddynamics.com>'
 
-LOGGER_LEVEL = logging.INFO
+LOGGER_LEVEL = logging.DEBUG
 LOGGER_FORMAT = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 LOGGER_HANDLER = logging.StreamHandler(sys.__stdout__)
 LOGGER_HANDLER.setFormatter(LOGGER_FORMAT)

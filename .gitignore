@@ -1,4 +1,6 @@
 *.pyc
 *.png
 *.swp
+wikiapi
+config.yaml
 

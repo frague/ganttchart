@@ -91,7 +91,7 @@ class Render:
             self._vert_text(x - 5, self.height - 60, printable_date(days[i * visible]))
 
         i = 0
-        for n in tasks_by_owners.keys():
+        for n in sorted(tasks_by_owners.iterkeys()):
             y = 20 + self.task_height * i 
             self._text(10, y - 2, n)
             owner_tasks = tasks_by_owners[n]

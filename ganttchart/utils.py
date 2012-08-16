@@ -4,7 +4,7 @@ import datetime
 
 def parse_date(text):
     try:
-        d = datetime.datetime.strptime(str(text), "%m/%d/%Y").date()
+        d = datetime.datetime.strptime(str(text).strip(), "%m/%d/%Y").date()
     except:
         return None
     w = d.weekday()
