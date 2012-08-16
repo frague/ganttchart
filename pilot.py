@@ -8,13 +8,13 @@ if __name__ == "__main__":
     cat2 = category.Category("Vacation", "#00FF80")
     cat3 = category.Category("Bench", "#0080FF")
 
-    c.tasks.append(task.Task("", cat1, "Nick Bogdanov", "06/03/2012", "08/03/2012")) 
     c.tasks.append(task.Task("", cat2, "Nick Bogdanov", "08/06/2012", "08/17/2012")) 
     c.tasks.append(task.Task("", cat3, "Nick Bogdanov", "08/20/2012", "08/24/2012")) 
+    c.tasks.append(task.Task("", cat1, "Nick Bogdanov", "06/03/2012", "08/03/2012")) 
     
     c.tasks.append(task.Task("", cat1, "Dmitry Russkikh", "06/03/2012", "08/03/2012")) 
-    c.tasks.append(task.Task("", cat1, "Max Lvov", "06/03/2012", "08/03/2012")) 
     c.tasks.append(task.Task("", cat2, "Max Lvov", "08/06/2012", "08/26/2012")) 
+    c.tasks.append(task.Task("", cat1, "Max Lvov", "06/03/2012", "08/03/2012")) 
     c.tasks.append(task.Task("", cat1, "Roman Bogorodskiy", "06/03/2012", "08/03/2012")) 
 
     r = render.Render(600)

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import datetime, math
+import datetime, math, os
 from exceptions import *
 from utils import *
 import Image, ImageDraw, ImageFont, ImageOps
@@ -14,7 +14,10 @@ class Render:
     def __init__(self, width):
         self.width = width
         self.task_height = 14
-        self.font = ImageFont.truetype("/home/nick/dev/gantt/ganttchart/fonts/Cuprum-Regular.ttf", 12)
+        #self.font_file = "pf_easta_seven_condensed.ttf" #8
+        #self.font_file = "PIXEARG_.ttf" #8
+        self.font_file = "resource.ttf" #16
+        self.font = ImageFont.truetype("%s/fonts/%s" % (os.path.split(os.path.realpath(__file__))[0], self.font_file), 16)
 
     def _text(self, x, y, text, fill="#000000"):
         self.draw.text((x, y), text, font=self.font, fill=fill)
@@ -43,6 +46,7 @@ class Render:
         self.height = 70 + self.task_height * (1 + len(chart.tasks))
         self.image = Image.new("RGBA", (self.width, self.height), "#FFFFFF")
         self.draw = ImageDraw.Draw(self.image)
+        self.draw.fontmode = "1"
 
         min_date = datetime.date.max
         max_date = datetime.date.min
