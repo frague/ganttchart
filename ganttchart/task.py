@@ -4,6 +4,9 @@ from datetime import datetime
 from exceptions import *
 import Image, ImageDraw
 from utils import *
+from logging import getLogger
+
+LOGGER = getLogger("frague")
 
 class Task:
     """ Represents task """
@@ -24,6 +27,9 @@ class Task:
         if depends_on and isinstance(depends_on, Task):
             self.depends_on = depends_on
 
+        LOGGER.debug("Task created \"%s\"" % self)
+
     def __repr__(self):
-        return "Task: %s" % self.title
+        return "Task: \"%s\" (%s) [%s-%s]" % (self.title, self.owner, 
+                printable_date(self.from_date), printable_date(self.till_date))
 

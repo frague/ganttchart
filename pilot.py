@@ -3,7 +3,7 @@
 from ganttchart import chart, task, category, render
 from wikiapi import xmlrpc
 from utils import *
-from logger import get_logger
+import logger
 import re
 
 colors = [
@@ -16,7 +16,6 @@ colors = [
 
 
 def parse_table(page, table_title, chart):
-    #{csv:output=wiki|id=Saratov}
     pattern = re.compile("{csv[^}]+id=%s}([^{]*){csv}" % table_title)
     found = pattern.search(page)
     if found:
@@ -38,7 +37,7 @@ def parse_table(page, table_title, chart):
             chart.tasks.append(task.Task("", cat, pool.strip(), owner.strip(), from_date, till_date)) 
 
 if __name__ == "__main__":
-    LOGGER = get_logger(__name__)
+    LOGGER = logger.make_custom_logger("frague")
     config = get_config()
 
     wiki_api = xmlrpc.api(config["wiki_xmlrpc"])
@@ -47,7 +46,7 @@ if __name__ == "__main__":
     page = wiki_api.get_page("CCCOE", "Resources Utilization")
 
     c = chart.GanttChart("Test Chart")
-    parse_table(page["content"], "Saratov", c) 
+    parse_table(page["content"], "Kharkov", c) 
     
     
     """

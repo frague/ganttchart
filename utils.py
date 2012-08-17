@@ -3,17 +3,23 @@
 import os
 import yaml
 import datetime
+import logging
+
+LOGGER = logging.getLogger("frague")
 
 # File methods
 def read_file(file_name):
     result = ""
+    LOGGER.debug("Reading file \"%s\"" % file_name)
     if os.path.exists(file_name):
         rf = file(file_name, "r")
         result = rf.read()
         rf.close()
+        LOGGER.debug("File reading succeeded")
     return result
 
 def write_file(file_name, contents):
+    LOGGER.debug("Writing file \"%s\"" % file_name)
     wf = file(file_name, "w")
     wf.write(contents)
     wf.close()

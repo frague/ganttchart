@@ -4,10 +4,13 @@ import datetime, math, os
 from exceptions import *
 from utils import *
 import Image, ImageDraw, ImageFont, ImageOps
+import logging
 
 import chart
 import category
 import task
+
+LOGGER = logging.getLogger("frague")
 
 class Render:
     """ Renders Gantt Chart as image"""
@@ -20,9 +23,11 @@ class Render:
         self.font = ImageFont.truetype("%s/fonts/%s" % (os.path.split(os.path.realpath(__file__))[0], self.font_file), 16)
 
     def _text(self, x, y, text, fill="#000000"):
+        LOGGER.debug("Printing \"%s\" to (%s,%s)" % (text, x, y))
         self.draw.text((x, y), text, font=self.font, fill=fill)
 
     def _vert_text(self, x, y, text, fill="#000000", angle=90):
+        LOGGER.debug("Printing vertical \"%s\" to (%s,%s) on %s deg." % (text, x, y, angle))
         (w, h) = self.font.getsize(text)
         tmp_image = Image.new("RGBA", (w + 2, h))
         d = ImageDraw.Draw(tmp_image)
@@ -31,6 +36,7 @@ class Render:
         self.image.paste(rotated, (x, y), rotated)
 
     def _box(self, x, y, width, height, fill="#000000"):
+        LOGGER.debug("Draw rectangle (%s, %s) - (%s, %s)" % (x, y, width, height))
         self.draw.line((x, y, x, y + height), fill=fill)
         self.draw.line((x, y + height, x + width, y + height), fill=fill)
         self.draw.line((x + width, y + height, x + width, y), fill=fill)
@@ -69,6 +75,7 @@ class Render:
         owners_by_pools = {}
         self.left_offset = 0
         for task in chart.tasks:
+            LOGGER.debug("Processing %s" % task)
             if task.from_date < min_date:
                 min_date = task.from_date
             if task.till_date > max_date:
@@ -108,7 +115,11 @@ class Render:
 
         for i in range(0, int(math.ceil(len(days) / float(visible)))):
             self._milestone(days[i * visible], "#808080" if not i else "#F0F0F0", "#808080")
-        self._milestone(datetime.date.today(), "#FF0000", "#FF0000")
+        today = datetime.date.today()
+        delta = 7 - today.weekday()
+        if delta in [1, 2]:
+            today += datetime.timedelta(days=delta)
+        self._milestone(today, "#FF0000", "#FF0000")
 
         i = 0
         y = 20
