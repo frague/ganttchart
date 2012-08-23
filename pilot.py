@@ -66,5 +66,5 @@ if __name__ == "__main__":
         wiki_api.upload_attachment(page["id"], location + ".png", "image/png", data)
 
     write_file("updated.txt", now.strftime("%x %X"))
-    page["content"] = re.sub("Last update: [^{]*", "Last update: *%s*" % now.strftime("%x %X"), page["content"])
+    page["content"] = re.sub("Last update: [^{]*", "Last update: *%s*" % datetime.datetime.now().strftime("%d-%m-%Y %H:%I"), page["content"])
     wiki_api.update_page(page, True)
