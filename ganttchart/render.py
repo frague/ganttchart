@@ -1,14 +1,11 @@
 #!/usr/bin/python
 
-import datetime, math, os
+import datetime, math, os, logging, StringIO
+import Image, ImageDraw, ImageFont, ImageOps
 from exceptions import *
 from utils import *
-import Image, ImageDraw, ImageFont, ImageOps
-import logging
 
-import chart
-import category
-import task
+import chart, category, task
 
 LOGGER = logging.getLogger("frague")
 
@@ -137,4 +134,8 @@ class Render:
 
                 i += len(tasks_by_owners[n])
 
-        self.image.save("out.png", "PNG")
+        output = StringIO.StringIO()
+        self.image.save(output, "PNG")
+        data = output.getvalue()
+        output.close()
+        return data

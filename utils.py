@@ -8,14 +8,14 @@ import logging
 LOGGER = logging.getLogger("frague")
 
 # File methods
-def read_file(file_name):
+def read_file(file_name, open_type="r"):
     result = ""
     LOGGER.debug("Reading file \"%s\"" % file_name)
     if os.path.exists(file_name):
-        rf = file(file_name, "r")
+        rf = file(file_name, open_type)
         result = rf.read()
         rf.close()
-        LOGGER.debug("File reading succeeded")
+        LOGGER.debug("File reading succeeded - %s bytes read" % len(result))
     return result
 
 def write_file(file_name, contents):

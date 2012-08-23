@@ -1,10 +1,9 @@
 #!/usr/bin/python
 
 from ganttchart import chart, task, category, render
+import re, logger, datetime
 from wikiapi import xmlrpc
 from utils import *
-import logger
-import re
 
 colors = [
         "#00CCFF", "#CCFFFF", "#CCFFCC", "#FFFF99",  
@@ -37,7 +36,7 @@ def parse_table(page, table_title, chart):
             chart.tasks.append(task.Task("", cat, pool.strip(), owner.strip(), from_date, till_date)) 
 
 if __name__ == "__main__":
-    LOGGER = logger.make_custom_logger("frague")
+    LOGGER = logger.make_custom_logger()
     config = get_config()
 
     wiki_api = xmlrpc.api(config["wiki_xmlrpc"])
@@ -45,24 +44,27 @@ if __name__ == "__main__":
     wiki_api.connect(config["wiki_login"], config["wiki_password"])
     page = wiki_api.get_page("CCCOE", "Resources Utilization")
 
-    c = chart.GanttChart("Test Chart")
-    parse_table(page["content"], "Kharkov", c) 
-    
-    
-    """
-    cat1 = category.Category("Heartbeat", "#FF8080")
-    cat2 = category.Category("Vacation", "#00FF80")
-    cat3 = category.Category("Bench", "#0080FF")
+    try:
+    	updated = datetime.datetime.strptime(read_file("updated.txt"), "%x %X")
+    except ValueError:
+    	updated = datetime.datetime.min
+    now = datetime.datetime.utcnow()
+    modified = datetime.datetime.strptime(str(page["modified"]), "%Y%m%dT%H:%M:%S")
 
-    c.tasks.append(task.Task("", cat2, "Nick Bogdanov", "08/06/2012", "08/17/2012")) 
-    c.tasks.append(task.Task("", cat3, "Nick Bogdanov", "08/20/2012", "08/24/2012")) 
-    c.tasks.append(task.Task("", cat1, "Nick Bogdanov", "06/03/2012", "08/03/2012")) 
-    
-    c.tasks.append(task.Task("", cat1, "Dmitry Russkikh", "06/03/2012", "08/03/2012")) 
-    c.tasks.append(task.Task("", cat2, "Max Lvov", "08/06/2012", "08/26/2012")) 
-    c.tasks.append(task.Task("", cat1, "Max Lvov", "06/03/2012", "08/03/2012")) 
-    c.tasks.append(task.Task("", cat1, "Roman Bogorodskiy", "06/03/2012", "08/03/2012")) 
-    """
+    if modified <= updated and now - updated < datetime.timedelta(days=1):
+    	LOGGER.info("No page/schemes updates needed")
+    	exit() 
 
-    r = render.Render(600)
-    r.process(c)
+    for location in ["Saratov", "Kharkov"]:
+        LOGGER.info("Generating chart for location: %s" % location)
+        c = chart.GanttChart("Test Chart")
+        parse_table(page["content"], location, c) 
+
+        r = render.Render(600)
+        data = r.process(c)
+
+        wiki_api.upload_attachment(page["id"], location + ".png", "image/png", data)
+
+    write_file("updated.txt", now.strftime("%x %X"))
+    page["content"] = re.sub("Last update: [^{]*", "Last update: *%s*" % now.strftime("%x %X"), page["content"])
+    wiki_api.update_page(page, True)
