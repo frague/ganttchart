@@ -42,8 +42,8 @@ class Render:
     def _draw_task(self, task, y):
         x = 20 + self.left_offset + self.coords[task.from_date]
         w = int(self.coords[task.till_date] - self.coords[task.from_date] + self.day_length)
-        self._box(x, y, w, self.task_height - 4)
-        self.draw.rectangle((x + 1, y + 1, x + w - 1, y + self.task_height - 5), task.category.color)
+        self._box(x, y, w - 1, self.task_height - 4)
+        self.draw.rectangle((x + 1, y + 1, x + w - 2, y + self.task_height - 5), task.category.color)
         self._text(x + 2, y - 2, task.category.title)
 
     def _milestone(self, date, fill="#808080", textfill="#808080"):
@@ -61,11 +61,6 @@ class Render:
             self._vert_text(18 + self.left_offset + self.active_width, y, text, fill=fill, angle=270)
 
     def process(self, chart):
-        self.height = 70 + self.task_height * (1 + len(chart.tasks))
-        self.image = Image.new("RGBA", (self.width, self.height), "#FFFFFF")
-        self.draw = ImageDraw.Draw(self.image)
-        self.draw.fontmode = "1"
-
         min_date = datetime.date.max
         max_date = datetime.date.min
         tasks_by_owners = {}
@@ -90,6 +85,11 @@ class Render:
             o = self.font.getsize(owner)[0]
             if o > self.left_offset:
                 self.left_offset = o
+
+        self.height = 70 + self.task_height * (1 + len(tasks_by_owners.keys()))
+        self.image = Image.new("RGBA", (self.width, self.height), "#FFFFFF")
+        self.draw = ImageDraw.Draw(self.image)
+        self.draw.fontmode = "1"
 
         self.active_width = self.width - self.left_offset - 30
         self._box(20 + self.left_offset, 20, self.active_width, self.height - 88, "#808080")
@@ -121,7 +121,7 @@ class Render:
         i = 0
         y = 20
         for pool in sorted(owners_by_pools.iterkeys()):
-            self._border(pool, y - 2)
+            b = y - 2 + (self.task_height if i > 0 else 0)
             for n in sorted(owners_by_pools[pool]):
                 y = 20 + self.task_height * i 
                 self._text(10, y - 2, n)
@@ -129,10 +129,10 @@ class Render:
                 for d in sorted(owner_tasks.iterkeys()):
                     t = owner_tasks[d]
                     self._draw_task(t, y)
-                    y += self.task_height
                 self._border(None, y - 2, "#F0F0F0")
 
-                i += len(tasks_by_owners[n])
+                i += 1
+            self._border(pool, b)
 
         output = StringIO.StringIO()
         self.image.save(output, "PNG")
