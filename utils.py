@@ -18,9 +18,9 @@ def read_file(file_name, open_type="r"):
         LOGGER.debug("File reading succeeded - %s bytes read" % len(result))
     return result
 
-def write_file(file_name, contents):
+def write_file(file_name, contents, open_type="w"):
     LOGGER.debug("Writing file \"%s\"" % file_name)
-    wf = file(file_name, "w")
+    wf = file(file_name, open_type)
     wf.write(contents)
     wf.close()
 

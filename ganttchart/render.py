@@ -39,6 +39,17 @@ class Render:
         self.draw.line((x + width, y + height, x + width, y), fill=fill)
         self.draw.line((x + width, y, x, y), fill=fill)
 
+    def _opaque_rectangle(self, x, y, width, height, fill="#000000", opacity=128):
+        LOGGER.debug("Draw opaque rectangle (%s, %s) - (%s, %s)" % (x, y, width, height))
+        color_layer = Image.new("RGBA", self.image.size, fill)
+        alpha_mask = Image.new("L", self.image.size, 0)
+        alpha_mask_draw = ImageDraw.Draw(alpha_mask)
+        alpha_mask_draw.rectangle((x, y, x + width, y + height), opacity)   # Opacity here?
+
+        self.image = Image.composite(color_layer, self.image, alpha_mask)
+        self.draw = ImageDraw.Draw(self.image)
+        self.draw.fontmode = "1"
+
     def _draw_task(self, task, y):
         x = 20 + self.left_offset + self.coords[task.from_date]
         w = int(self.coords[task.till_date] - self.coords[task.from_date] + self.day_length)
@@ -56,7 +67,7 @@ class Render:
 
     def _border(self, text, y, fill="#808080"):
         if y > 20:
-            self.draw.line((21 + self.left_offset, y, 18 + self.left_offset + self.active_width, y), fill=fill)
+            self.draw.line((21 + self.left_offset, y, 19 + self.left_offset + self.active_width, y), fill=fill)
         if text:
             self._vert_text(18 + self.left_offset + self.active_width, y, text, fill=fill, angle=270)
 
@@ -119,20 +130,23 @@ class Render:
         self._milestone(today, "#FF0000", "#FF0000")
 
         i = 0
+        j = 0
         y = 20
         for pool in sorted(owners_by_pools.iterkeys()):
             self._border(pool, y - 2)
             for n in sorted(owners_by_pools[pool]):
                 y = 20 + self.task_height * i 
-                self._text(10, y - 2, n)
                 owner_tasks = tasks_by_owners[n]
+                if j % 2:
+                	self._opaque_rectangle(8, y - 1, 104 + self.active_width, self.task_height * len(owner_tasks) - 1, "#0040FF", 32)
+                self._text(10, y - 2, n)
                 for d in sorted(owner_tasks.iterkeys()):
                     t = owner_tasks[d]
                     self._draw_task(t, y)
                     y += self.task_height
-                self._border(None, y - 2, "#F0F0F0")
 
                 i += len(tasks_by_owners[n])
+                j += 1
 
         output = StringIO.StringIO()
         self.image.save(output, "PNG")
