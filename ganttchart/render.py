@@ -13,7 +13,7 @@ class Render:
     """ Renders Gantt Chart as image"""
     def __init__(self, width):
         self.width = width
-        self.task_height = 14
+        self.task_height = 20
         #self.font_file = "pf_easta_seven_condensed.ttf" #8
         #self.font_file = "PIXEARG_.ttf" #8
         self.font_file = "resource.ttf" #16
@@ -39,11 +39,23 @@ class Render:
         self.draw.line((x + width, y + height, x + width, y), fill=fill)
         self.draw.line((x + width, y, x, y), fill=fill)
 
+    def _opaque_rectangle(self, x, y, width, height, fill="#000000", opacity=128):
+        LOGGER.debug("Draw opaque rectangle (%s, %s) - (%s, %s)" % (x, y, width, height))
+        color_layer = Image.new("RGBA", self.image.size, fill)
+        alpha_mask = Image.new("L", self.image.size, 0)
+        alpha_mask_draw = ImageDraw.Draw(alpha_mask)
+        alpha_mask_draw.rectangle((x, y, x + width, y + height), opacity)   # Opacity here?
+
+        self.image = Image.composite(color_layer, self.image, alpha_mask)
+        self.draw = ImageDraw.Draw(self.image)
+        self.draw.fontmode = "1"
+
     def _draw_task(self, task, y):
         x = 20 + self.left_offset + self.coords[task.from_date]
         w = int(self.coords[task.till_date] - self.coords[task.from_date] + self.day_length)
+        #self.draw.rectangle((x + 1, y + 1, x + w - 2, y + self.task_height - 5), task.category.color)
+        self._opaque_rectangle(x + 1, y + 1, w - 2, self.task_height - 5, task.category.color, 200)
         self._box(x, y, w - 1, self.task_height - 4)
-        self.draw.rectangle((x + 1, y + 1, x + w - 2, y + self.task_height - 5), task.category.color)
         self._text(x + 2, y - 2, task.category.title)
 
     def _milestone(self, date, fill="#808080", textfill="#808080"):
@@ -51,12 +63,12 @@ class Render:
             return
         x = self.coords[date] + 20 + self.left_offset
 
-        self.draw.line((x, 21, x, self.height - 70), fill)
-        self._vert_text(x - 5, self.height - 60, printable_date(date), textfill)
+        self.draw.line((x, 19, x, self.height - 73), fill)
+        self._vert_text(x - 8, self.height - 60, printable_date(date), textfill)
 
     def _border(self, text, y, fill="#808080"):
         if y > 20:
-            self.draw.line((21 + self.left_offset, y, 18 + self.left_offset + self.active_width, y), fill=fill)
+            self.draw.line((21 + self.left_offset, y, 19 + self.left_offset + self.active_width, y), fill=fill)
         if text:
             self._vert_text(18 + self.left_offset + self.active_width, y, text, fill=fill, angle=270)
 
@@ -86,13 +98,14 @@ class Render:
             if o > self.left_offset:
                 self.left_offset = o
 
-        self.height = 70 + self.task_height * (1 + len(tasks_by_owners.keys()))
+        tasks_height = self.task_height * len(tasks_by_owners.keys())
+        self.height = 90 + tasks_height
         self.image = Image.new("RGBA", (self.width, self.height), "#FFFFFF")
         self.draw = ImageDraw.Draw(self.image)
         self.draw.fontmode = "1"
 
         self.active_width = self.width - self.left_offset - 30
-        self._box(20 + self.left_offset, 20, self.active_width, self.height - 88, "#808080")
+        self._box(20 + self.left_offset, 18, self.active_width, tasks_height, "#808080")
         
         days = []
         d = min_date
@@ -112,6 +125,7 @@ class Render:
 
         for i in range(0, int(math.ceil(len(days) / float(visible)))):
             self._milestone(days[i * visible], "#808080" if not i else "#F0F0F0", "#808080")
+
         today = datetime.date.today()
         delta = 7 - today.weekday()
         if delta in [1, 2]:
@@ -124,13 +138,12 @@ class Render:
             b = y - 2 + (self.task_height if i > 0 else 0)
             for n in sorted(owners_by_pools[pool]):
                 y = 20 + self.task_height * i 
-                self._text(10, y - 2, n)
                 owner_tasks = tasks_by_owners[n]
+                if i % 2:
+                    self._opaque_rectangle(8, y - 1, 11 + self.left_offset + self.active_width, self.task_height - 1, "#0040FF", 32)
+                self._text(10, y - 2, n)
                 for d in sorted(owner_tasks.iterkeys()):
-                    t = owner_tasks[d]
-                    self._draw_task(t, y)
-                self._border(None, y - 2, "#F0F0F0")
-
+                    self._draw_task(owner_tasks[d], y)
                 i += 1
             self._border(pool, b)
 
