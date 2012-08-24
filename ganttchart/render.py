@@ -19,6 +19,11 @@ class Render:
         self.font_file = "resource.ttf" #16
         self.font = ImageFont.truetype("%s/fonts/%s" % (os.path.split(os.path.realpath(__file__))[0], self.font_file), 16)
 
+    def _init_image(self, image):
+        self.image = image
+        self.draw = ImageDraw.Draw(self.image)
+        self.draw.fontmode = "1"
+
     def _text(self, x, y, text, fill="#000000"):
         LOGGER.debug("Printing \"%s\" to (%s,%s)" % (text, x, y))
         self.draw.text((x, y), text, font=self.font, fill=fill)
@@ -46,9 +51,7 @@ class Render:
         alpha_mask_draw = ImageDraw.Draw(alpha_mask)
         alpha_mask_draw.rectangle((x, y, x + width, y + height), opacity)   # Opacity here?
 
-        self.image = Image.composite(color_layer, self.image, alpha_mask)
-        self.draw = ImageDraw.Draw(self.image)
-        self.draw.fontmode = "1"
+        self._init_image(Image.composite(color_layer, self.image, alpha_mask))
 
     def _draw_task(self, task, y):
         x = 20 + self.left_offset + self.coords[task.from_date]
@@ -73,9 +76,7 @@ class Render:
 
     def process(self, chart):
         self.height = 70 + self.task_height * (1 + len(chart.tasks))
-        self.image = Image.new("RGBA", (self.width, self.height), "#FFFFFF")
-        self.draw = ImageDraw.Draw(self.image)
-        self.draw.fontmode = "1"
+        self._init_image(Image.new("RGBA", (self.width, self.height), "#FFFFFF"))
 
         min_date = datetime.date.max
         max_date = datetime.date.min
@@ -138,7 +139,7 @@ class Render:
                 y = 20 + self.task_height * i 
                 owner_tasks = tasks_by_owners[n]
                 if j % 2:
-                	self._opaque_rectangle(8, y - 1, 104 + self.active_width, self.task_height * len(owner_tasks) - 1, "#0040FF", 32)
+                	self._opaque_rectangle(8, y - 1, 11 + self.left_offset + self.active_width, self.task_height * len(owner_tasks) - 1, "#0040FF", 32)
                 self._text(10, y - 2, n)
                 for d in sorted(owner_tasks.iterkeys()):
                     t = owner_tasks[d]
