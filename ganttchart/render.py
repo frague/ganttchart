@@ -56,8 +56,9 @@ class Render:
     def _draw_task(self, task, y):
         x = 20 + self.left_offset + self.coords[task.from_date]
         w = int(self.coords[task.till_date] - self.coords[task.from_date] + self.day_length)
+        #self.draw.rectangle((x + 1, y + 1, x + w - 1, y + self.task_height - 5), task.category.color)
+        self._opaque_rectangle(x + 1, y + 1, w - 1, self.task_height - 5, task.category.color, 200)
         self._box(x, y, w, self.task_height - 4)
-        self.draw.rectangle((x + 1, y + 1, x + w - 1, y + self.task_height - 5), task.category.color)
         self._text(x + 2, y - 2, task.category.title)
 
     def _milestone(self, date, fill="#808080", textfill="#808080"):
