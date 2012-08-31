@@ -52,7 +52,7 @@ if __name__ == "__main__":
     wiki_date = datetime.datetime.strptime(str(page["modified"]), "%Y%m%dT%H:%M:%S") + datetime.timedelta(hours=7) # Wiki TZ offset
     LOGGER.debug("Dates: cache=%s, wiki=%s, now=%s" % (cache_date, wiki_date, now))
 
-    if wiki_date - cache_date < datetime.timedelta(minutes=5) and now - cache_date < datetime.timedelta(days=1):
+    if wiki_date - cache_date < datetime.timedelta(minutes=5) and now.date == cache_date.date:
     	LOGGER.info("No page/schemes updates needed")
     	exit() 
 
