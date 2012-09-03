@@ -19,6 +19,7 @@ def parse_table(page, table_title, chart):
     found = pattern.search(page)
     if found:
         color_index = 0
+        i = 1
         table = found.group(1)
         categories = {}
         for line in table.split("\n"):
@@ -34,6 +35,7 @@ def parse_table(page, table_title, chart):
                 color_index += 1
             cat = categories[cat]
             chart.tasks.append(task.Task("", cat, pool.strip(), owner.strip(), from_date, till_date)) 
+            i += 1
 
 if __name__ == "__main__":
     LOGGER = logger.make_custom_logger()
@@ -46,7 +48,7 @@ if __name__ == "__main__":
 
     for location in ["Saratov"]:
         LOGGER.info("Generating chart for location: %s" % location)
-        c = chart.GanttChart("Test Chart")
+        c = chart.PlainGanttChart("Test Chart")
         parse_table(page["content"], location, c) 
 
         r = render.Render(600)

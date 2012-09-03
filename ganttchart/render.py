@@ -19,11 +19,11 @@ class Render:
         self.font_file = "resource.ttf" #16
         self.font = ImageFont.truetype("%s/fonts/%s" % (os.path.split(os.path.realpath(__file__))[0], self.font_file), 16)
 
-    def _text(self, x, y, text, fill="#000000"):
+    def text(self, x, y, text, fill="#000000"):
         LOGGER.debug("Printing \"%s\" to (%s,%s)" % (text, x, y))
         self.draw.text((x, y), text, font=self.font, fill=fill)
 
-    def _vert_text(self, x, y, text, fill="#000000", angle=90):
+    def vert_text(self, x, y, text, fill="#000000", angle=90):
         LOGGER.debug("Printing vertical \"%s\" to (%s,%s) on %s deg." % (text, x, y, angle))
         (w, h) = self.font.getsize(text)
         tmp_image = Image.new("RGBA", (w + 2, h))
@@ -32,14 +32,14 @@ class Render:
         rotated = tmp_image.rotate(angle,  expand=1)
         self.image.paste(rotated, (x, y), rotated)
 
-    def _box(self, x, y, width, height, fill="#000000"):
+    def box(self, x, y, width, height, fill="#000000"):
         LOGGER.debug("Draw rectangle (%s, %s) - (%s, %s)" % (x, y, width, height))
         self.draw.line((x, y, x, y + height), fill=fill)
         self.draw.line((x, y + height, x + width, y + height), fill=fill)
         self.draw.line((x + width, y + height, x + width, y), fill=fill)
         self.draw.line((x + width, y, x, y), fill=fill)
 
-    def _opaque_rectangle(self, x, y, width, height, fill="#000000", opacity=128):
+    def opaque_rectangle(self, x, y, width, height, fill="#000000", opacity=128):
         LOGGER.debug("Draw opaque rectangle (%s, %s) - (%s, %s)" % (x, y, width, height))
         color_layer = Image.new("RGBA", self.image.size, fill)
         alpha_mask = Image.new("L", self.image.size, 0)
@@ -50,66 +50,76 @@ class Render:
         self.draw = ImageDraw.Draw(self.image)
         self.draw.fontmode = "1"
 
-    def _draw_task(self, task, y):
+    def draw_task(self, task, y):
+        LOGGER.debug("Drawing task: %s" % task)
         x = 20 + self.left_offset + self.coords[task.from_date]
-        w = int(self.coords[task.till_date] - self.coords[task.from_date] + self.day_length)
-        #self.draw.rectangle((x + 1, y + 1, x + w - 2, y + self.task_height - 5), task.category.color)
-        self._opaque_rectangle(x + 1, y + 1, w - 2, self.task_height - 5, task.category.color, 200)
-        self._box(x, y, w - 1, self.task_height - 4)
-        self._text(x + 2, y - 2, task.category.title)
+        w = int(self.coords[self._de_weekend(task.till_date, False)] - self.coords[self._de_weekend(task.from_date)] + self.day_length)
+        self.opaque_rectangle(x + 1, y + 1, w - 2, self.task_height - 5, task.category.color, 200)
+        self.box(x, y, w - 1, self.task_height - 4)
+        self.text(x + 2, y - 2, task.category.title)
 
-    def _milestone(self, date, fill="#808080", textfill="#808080"):
+    def milestone(self, date, fill="#808080", textfill="#808080"):
         if date not in self.coords:
             return
         x = self.coords[date] + 20 + self.left_offset
 
         self.draw.line((x, 19, x, self.height - 73), fill)
-        self._vert_text(x - 8, self.height - 60, printable_date(date), textfill)
+        self.vert_text(x - 8, self.height - 60, printable_date(date), textfill)
 
-    def _border(self, text, y, fill="#808080"):
+    def border(self, text, y, fill="#808080"):
         if y > 20:
             self.draw.line((21 + self.left_offset, y, 19 + self.left_offset + self.active_width, y), fill=fill)
         if text:
-            self._vert_text(18 + self.left_offset + self.active_width, y, text, fill=fill, angle=270)
+            self.vert_text(18 + self.left_offset + self.active_width, y, text, fill=fill, angle=270)
+
+    def _de_weekend(self, d, later=True):
+        delta = 7 - d.weekday()
+        if delta in [1, 2]:
+            d += datetime.timedelta(days=delta) if later else datetime.timedelta(days=delta-3)
+        return d
 
     def process(self, chart):
-        min_date = datetime.date.max
-        max_date = datetime.date.min
-        tasks_by_owners = {}
-        owners_by_pools = {}
+        self.min_date = datetime.date.max
+        self.max_date = datetime.date.min
+        self.tasks_by_owners = {}
+        self.owners_by_pools = {}
         self.left_offset = 0
         for task in chart.tasks:
             LOGGER.debug("Processing %s" % task)
-            if task.from_date < min_date:
-                min_date = task.from_date
-            if task.till_date > max_date:
-                max_date = task.till_date
+            if task.from_date < self.min_date:
+                self.min_date = task.from_date
+            if task.till_date > self.max_date:
+                self.max_date = task.till_date
+
             owner = task.owner
-            if owner not in tasks_by_owners:
-                tasks_by_owners[owner] = {}
-            tasks_by_owners[owner][task.from_date] = task
+            if owner not in self.tasks_by_owners:
+                self.tasks_by_owners[owner] = {}
+            if task.from_date not in self.tasks_by_owners[owner]:
+                self.tasks_by_owners[owner][task.from_date] = []
+            self.tasks_by_owners[owner][task.from_date].append(task)
             
-            if task.pool not in owners_by_pools:
-                owners_by_pools[task.pool] = []
-            if owner not in owners_by_pools[task.pool]:
-                owners_by_pools[task.pool].append(owner)
+            if task.pool not in self.owners_by_pools:
+                self.owners_by_pools[task.pool] = []
+            if owner not in self.owners_by_pools[task.pool]:
+                self.owners_by_pools[task.pool].append(owner)
 
             o = self.font.getsize(owner)[0]
             if o > self.left_offset:
                 self.left_offset = o
 
-        tasks_height = self.task_height * len(tasks_by_owners.keys())
-        self.height = 90 + tasks_height
+        # Getting chart height
+        self.height = chart.get_height(self)
+
         self.image = Image.new("RGBA", (self.width, self.height), "#FFFFFF")
         self.draw = ImageDraw.Draw(self.image)
         self.draw.fontmode = "1"
 
         self.active_width = self.width - self.left_offset - 30
-        self._box(20 + self.left_offset, 18, self.active_width, tasks_height, "#808080")
+        self.box(20 + self.left_offset, 18, self.active_width, self.height - 90, "#808080")
         
         days = []
-        d = min_date
-        while d <= max_date:
+        d = self.min_date
+        while d <= self.max_date:
             if d.weekday() not in [5, 6]:
                 days.append(d)
             d += datetime.timedelta(days=1)
@@ -124,28 +134,12 @@ class Render:
             visible += 1
 
         for i in range(0, int(math.ceil(len(days) / float(visible)))):
-            self._milestone(days[i * visible], "#808080" if not i else "#F0F0F0", "#808080")
+            self.milestone(days[i * visible], "#808080" if not i else "#F0F0F0", "#808080")
 
-        today = datetime.date.today()
-        delta = 7 - today.weekday()
-        if delta in [1, 2]:
-            today += datetime.timedelta(days=delta)
-        self._milestone(today, "#FF0000", "#FF0000")
+        today = self._de_weekend(datetime.date.today())
+        self.milestone(today, "#FF0000", "#FF0000")
 
-        i = 0
-        y = 20
-        for pool in sorted(owners_by_pools.iterkeys()):
-            b = y - 2 + (self.task_height if i > 0 else 0)
-            for n in sorted(owners_by_pools[pool]):
-                y = 20 + self.task_height * i 
-                owner_tasks = tasks_by_owners[n]
-                if i % 2:
-                    self._opaque_rectangle(8, y - 1, 11 + self.left_offset + self.active_width, self.task_height - 1, "#0040FF", 32)
-                self._text(10, y - 2, n)
-                for d in sorted(owner_tasks.iterkeys()):
-                    self._draw_task(owner_tasks[d], y)
-                i += 1
-            self._border(pool, b)
+        chart.build(self)
 
         output = StringIO.StringIO()
         self.image.save(output, "PNG")
