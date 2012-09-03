@@ -139,7 +139,7 @@ class Render:
         today = self._de_weekend(datetime.date.today())
         self.milestone(today, "#FF0000", "#FF0000")
 
-        chart.build(self)
+        chart.draw(self)
 
         output = StringIO.StringIO()
         self.image.save(output, "PNG")
