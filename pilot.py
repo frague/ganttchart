@@ -49,16 +49,17 @@ if __name__ == "__main__":
     except ValueError:
     	cache_date = datetime.datetime.min
     now = datetime.datetime.utcnow()
-    wiki_date = datetime.datetime.strptime(str(page["modified"]), "%Y%m%dT%H:%M:%S") + datetime.timedelta(hours=7) # Wiki TZ offset
-    LOGGER.debug("Dates: cache=%s, wiki=%s, now=%s" % (cache_date, wiki_date, now))
+    modified = datetime.datetime.strptime(str(page["modified"]), "%Y%m%dT%H:%M:%S") + datetime.timedelta(hours=7)    # TZ compensation hack
 
-    if wiki_date - cache_date < datetime.timedelta(minutes=5) and now.date == cache_date.date:
+    LOGGER.debug("Dates: updated=%s, now=%s, modified=%s" % (updated, now, modified))
+
+    if modified <= updated and now.date() == updated.date():
     	LOGGER.info("No page/schemes updates needed")
     	exit() 
 
     for location in ["Saratov", "Kharkov"]:
         LOGGER.info("Generating chart for location: %s" % location)
-        c = chart.GanttChart("Test Chart")
+        c = chart.OffsetGanttChart("Test Chart")
         parse_table(page["content"], location, c) 
 
         r = render.Render(600)

@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     for location in ["Saratov"]:
         LOGGER.info("Generating chart for location: %s" % location)
-        c = chart.GanttChart("Test Chart")
+        c = chart.OffsetGanttChart("Test Chart")
         parse_table(page["content"], location, c) 
 
         r = render.Render(600)
