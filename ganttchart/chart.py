@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from exceptions import *
 import Image, ImageDraw
 from random import randint as rint
@@ -27,6 +27,12 @@ class GanttChart:
     def _tasks_height(self, render):
         return render.task_height * len(self.tasks)
 
+    def get_category(self, name):
+    	for t in self.tasks:
+    	    if t.category.title == name:
+    	        return t.category
+    	return category.Category("Bench", "#FFFF00")
+    
     def draw(self, render):
         i = 0
         y = 20
@@ -89,6 +95,7 @@ class OffsetGanttChart(GanttChart):
     def draw(self, render):
         i = 0
         y = 20
+        today = date.today()
         # Pools
         for pool in sorted(render.owners_by_pools.iterkeys()):
             render.border(pool, y - (2 if i else 0))
@@ -100,10 +107,15 @@ class OffsetGanttChart(GanttChart):
                     render.opaque_rectangle(8, y - 1, 11 + render.left_offset + render.active_width, render.task_height + self.vertical_offset * (tasks_num - 1) - 1, "#0040FF", 32)
                 render.text(10, y - 2, n)
                 # Tasks dates
+                d, t = None, None
                 for d in sorted(owner_tasks.iterkeys()):
                     # Tasks
-                    for task in owner_tasks[d]:
-                    	render.draw_task(task, y)
+                    for t in owner_tasks[d]:
+                    	render.draw_task(t, y)
                     	y += self.vertical_offset
+                #if t.till_date < today:
+                #    t1 = task.Task("", self.get_category("Bench"), t.pool, t.owner, render.de_weekend(t.till_date + timedelta(days=1)), render.max_date)
+                #    render.draw_task(t1, y - self.vertical_offset, 64)
+                    
                 i += 1
                 y += render.task_height - self.vertical_offset

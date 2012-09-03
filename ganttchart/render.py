@@ -52,11 +52,11 @@ class Render:
         alpha_mask_draw.rectangle((x, y, x + width, y + height), opacity)   # Opacity here?
         self._init_image(Image.composite(color_layer, self.image, alpha_mask))
 
-    def draw_task(self, task, y):
+    def draw_task(self, task, y, opacity=200):
         LOGGER.debug("Drawing task: %s" % task)
         x = 20 + self.left_offset + self.coords[task.from_date]
-        w = int(self.coords[self._de_weekend(task.till_date, False)] - self.coords[self._de_weekend(task.from_date)] + self.day_length)
-        self.opaque_rectangle(x + 1, y + 1, w - 2, self.task_height - 5, task.category.color, 200)
+        w = int(self.coords[self.de_weekend(task.till_date, False)] - self.coords[self.de_weekend(task.from_date)] + self.day_length)
+        self.opaque_rectangle(x + 1, y + 1, w - 2, self.task_height - 5, task.category.color, opacity)
         self.box(x, y, w - 1, self.task_height - 4)
         self.text(x + 2, y - 2, task.category.title)
 
@@ -74,7 +74,7 @@ class Render:
         if text:
             self.vert_text(18 + self.left_offset + self.active_width, y, text, fill=fill, angle=270)
 
-    def _de_weekend(self, d, later=True):
+    def de_weekend(self, d, later=True):
         delta = 7 - d.weekday()
         if delta in [1, 2]:
             d += datetime.timedelta(days=delta) if later else datetime.timedelta(days=delta-3)
@@ -88,11 +88,13 @@ class Render:
         self.left_offset = 0
         for task in chart.tasks:
             LOGGER.debug("Processing %s" % task)
+            # Min & Max dates
             if task.from_date < self.min_date:
                 self.min_date = task.from_date
             if task.till_date > self.max_date:
                 self.max_date = task.till_date
 
+            # Users & users' tasks
             owner = task.owner
             if owner not in self.tasks_by_owners:
                 self.tasks_by_owners[owner] = {}
@@ -100,6 +102,7 @@ class Render:
                 self.tasks_by_owners[owner][task.from_date] = []
             self.tasks_by_owners[owner][task.from_date].append(task)
             
+            # Pools
             if task.pool not in self.owners_by_pools:
                 self.owners_by_pools[task.pool] = []
             if owner not in self.owners_by_pools[task.pool]:
@@ -136,7 +139,7 @@ class Render:
         for i in range(0, int(math.ceil(len(days) / float(visible)))):
             self.milestone(days[i * visible], "#808080" if not i else "#F0F0F0", "#808080")
 
-        today = self._de_weekend(datetime.date.today())
+        today = self.de_weekend(datetime.date.today())
         self.milestone(today, "#FF0000", "#FF0000")
 
         chart.draw(self)

@@ -7,6 +7,9 @@ LOGGER = getLogger("frague")
 
 def parse_date(text):
     log = "Date \"%s\" parsing: " % text
+    if isinstance(text, datetime.date):
+    	return text
+
     try:
         d = datetime.datetime.strptime(str(text).strip(), "%m/%d/%Y").date()
     except:
