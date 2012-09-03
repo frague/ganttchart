@@ -49,9 +49,11 @@ if __name__ == "__main__":
     except ValueError:
     	updated = datetime.datetime.min
     now = datetime.datetime.utcnow()
-    modified = datetime.datetime.strptime(str(page["modified"]), "%Y%m%dT%H:%M:%S")
+    modified = datetime.datetime.strptime(str(page["modified"]), "%Y%m%dT%H:%M:%S") + datetime.timedelta(hours=7)    # TZ compensation hack
 
-    if modified <= updated and now - updated < datetime.timedelta(days=1):
+    LOGGER.debug("Dates: updated=%s, now=%s, modified=%s" % (updated, now, modified))
+
+    if modified <= updated and now.date() == updated.date():
     	LOGGER.info("No page/schemes updates needed")
     	exit() 
 
