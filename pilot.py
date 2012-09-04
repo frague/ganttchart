@@ -51,9 +51,9 @@ if __name__ == "__main__":
     now = datetime.datetime.utcnow()
     modified = datetime.datetime.strptime(str(page["modified"]), "%Y%m%dT%H:%M:%S") + datetime.timedelta(hours=7)    # TZ compensation hack
 
-    LOGGER.debug("Dates: updated=%s, now=%s, modified=%s" % (updated, now, modified))
+    LOGGER.debug("Dates: updated=%s, now=%s, modified=%s" % (cache_date, now, modified))
 
-    if modified <= updated and now.date() == updated.date():
+    if modified <= cache_date and now.date() == cache_date.date():
     	LOGGER.info("No page/schemes updates needed")
     	exit() 
 
