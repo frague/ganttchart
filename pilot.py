@@ -44,6 +44,7 @@ if __name__ == "__main__":
     wiki_api.connect(config["wiki_login"], config["wiki_password"])
     page = wiki_api.get_page("CCCOE", "Resources Utilization")
 
+
     try:
     	cache_date = datetime.datetime.strptime(read_file("updated.txt"), "%x %X")
     except ValueError:
@@ -68,5 +69,5 @@ if __name__ == "__main__":
         wiki_api.upload_attachment(page["id"], location + ".png", "image/png", data)
 
     write_file("updated.txt", now.strftime("%x %X"))
-    page["content"] = re.sub("Last update: [^{]*", "Last update: *%s*" % datetime.datetime.now().strftime("%d-%m-%Y %H:%I"), page["content"])
+    page["content"] = re.sub("Last update: [^<]*", "Last update: %s" % datetime.datetime.now().strftime("%d/%m/%Y %H:%I"), page["content"])
     wiki_api.update_page(page, True)
