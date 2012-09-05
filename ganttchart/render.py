@@ -7,7 +7,7 @@ from utils import *
 
 import chart, category, task
 
-LOGGER = logging.getLogger("frague")
+LOGGER = logging.getLogger()
 
 class Render:
     """ Renders Gantt Chart as image"""

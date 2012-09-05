@@ -3,7 +3,7 @@
 import datetime
 from logging import getLogger
 
-LOGGER = getLogger("frague")
+LOGGER = getLogger()
 
 def parse_date(text):
     log = "Date \"%s\" parsing: " % text

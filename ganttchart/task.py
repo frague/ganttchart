@@ -6,7 +6,7 @@ import Image, ImageDraw
 from utils import *
 from logging import getLogger
 
-LOGGER = getLogger("frague")
+LOGGER = getLogger()
 
 class Task:
     """ Represents task """

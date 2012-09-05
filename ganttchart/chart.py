@@ -9,7 +9,7 @@ from logging import getLogger
 import category
 import task
 
-LOGGER = getLogger("frague")
+LOGGER = getLogger()
 
 class GanttChart:
     """ Represents Gantt Chart """

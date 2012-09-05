@@ -3,7 +3,7 @@
 from exceptions import *
 from logging import getLogger
 
-LOGGER = getLogger("frague")
+LOGGER = getLogger()
 
 class Category:
     """ Represents tasks category """
