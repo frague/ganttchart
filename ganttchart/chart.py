@@ -107,15 +107,17 @@ class OffsetGanttChart(GanttChart):
                     render.opaque_rectangle(8, y - 1, 11 + render.left_offset + render.active_width, render.task_height + self.vertical_offset * (tasks_num - 1) - 1, "#0040FF", 32)
                 render.text(10, y - 2, n)
                 # Tasks dates
-                d, t = None, None
+                md, d, t = date.min, None, None
                 for d in sorted(owner_tasks.iterkeys()):
                     # Tasks
                     for t in owner_tasks[d]:
                     	render.draw_task(t, y)
                     	y += self.vertical_offset
-                #if t.till_date < today:
-                #    t1 = task.Task("", self.get_category("Bench"), t.pool, t.owner, render.de_weekend(t.till_date + timedelta(days=1)), render.max_date)
-                #    render.draw_task(t1, y - self.vertical_offset, 64)
+                        if t.till_date > md:
+                            md = t.till_date
+                if md < today:
+                    t1 = task.Task("", self.get_category("Bench"), t.pool, t.owner, render.de_weekend(md + timedelta(days=1)), render.max_date)
+                    render.draw_task(t1, y - self.vertical_offset)
                     
                 i += 1
                 y += render.task_height - self.vertical_offset

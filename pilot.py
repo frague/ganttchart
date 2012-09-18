@@ -49,12 +49,13 @@ if __name__ == "__main__":
     	cache_date = datetime.datetime.strptime(read_file("updated.txt"), "%x %X")
     except ValueError:
     	cache_date = datetime.datetime.min
+    	LOGGER.error("Unable to read date cache")
     now = datetime.datetime.utcnow()
-    modified = datetime.datetime.strptime(str(page["modified"]), "%Y%m%dT%H:%M:%S") + datetime.timedelta(hours=7)    # TZ compensation hack
+    wiki = datetime.datetime.strptime(str(page["modified"]), "%Y%m%dT%H:%M:%S") + datetime.timedelta(hours=7)    # TZ compensation hack
 
-    LOGGER.debug("Dates: updated=%s, now=%s, modified=%s" % (cache_date, now, modified))
+    LOGGER.debug("Dates: cache=%s, now=%s, wiki=%s" % (cache_date, now, wiki))
 
-    if modified <= cache_date and now.date() == cache_date.date():
+    if wiki <= cache_date and now.date() == cache_date.date():
     	LOGGER.info("No page/schemes updates needed")
     	exit() 
 
@@ -68,6 +69,6 @@ if __name__ == "__main__":
 
         wiki_api.upload_attachment(page["id"], location + ".png", "image/png", data)
 
-    write_file("updated.txt", now.strftime("%x %X"))
+    write_file("updated.txt", (now + datetime.timedelta(minutes=10)).strftime("%x %X"))
     page["content"] = re.sub("Last update: [^<]*", "Last update: %s" % datetime.datetime.now().strftime("%d/%m/%Y %H:%I"), page["content"])
     wiki_api.update_page(page, True)
