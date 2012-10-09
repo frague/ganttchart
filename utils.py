@@ -34,3 +34,4 @@ today = datetime.datetime.now()
 
 def printable_date(d):
     return d.strftime("%B, %d (%A)")
+

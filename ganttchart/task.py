@@ -29,7 +29,19 @@ class Task:
 
         LOGGER.debug("Task created \"%s\"" % self)
 
+    @property
+    def key(self):
+        try:
+            return self.pool + self.owner + self.from_date.strftime("%Y%m%d")
+        except Exception:
+            return ""
+
+    def __lt__(self, other):
+        return self.key < other.key
+
     def __repr__(self):
         return "Task: \"%s\" (%s) [%s-%s]" % (self.title, self.owner, 
                 printable_date(self.from_date), printable_date(self.till_date))
-
+    def to_csv(self):
+        return "%s,	%s,	%s,	%s,	%s" % (self.category.title, self.pool, self.owner, 
+                printable_date(self.from_date), printable_date(self.till_date))

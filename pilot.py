@@ -13,27 +13,77 @@ colors = [
         "#003300", "#339966", "#003300", "#333300",  
         "#993300", "#993366", "#333399", "#333333"]
 
+predefined = {"Bench": "#FF8080", "Vacation": "#D0D0D0"}
+categories = {}
+color_index = 0
+    
+def remove_non_ascii(s):
+    return "".join(i for i in s if ord(i) < 128)
+
+def get_category(name):
+    global color_index
+
+    if name not in categories:
+        if name in predefined:
+            color = predefined[name]
+        else:
+            color = colors[color_index]
+            color_index += 1
+        categories[name] = category.Category(name, color)
+    return categories[name]
 
 def parse_table(page, table_title, chart):
     pattern = re.compile("{csv[^}]+id=%s}([^{]*){csv}" % table_title)
     found = pattern.search(page)
     if found:
-        color_index = 0
+        now = datetime.date.today()
         table = found.group(1)
-        categories = {}
-        for line in table.split("\n"):
+        owners = {}
+        max_date = datetime.date.min
+        for line in remove_non_ascii(table).split("\n"):
             LOGGER.debug(line)
             try:
                 (cat, pool, owner, from_date, till_date) = line.split(",")
             except:
+                LOGGER.error("Unable to parse line: %s" % line)
                 continue
             if cat == "Category":
                 continue
-            if cat not in categories:
-                categories[cat] = category.Category(cat, colors[color_index])
-                color_index += 1
-            cat = categories[cat]
-            chart.tasks.append(task.Task("", cat, pool.strip(), owner.strip(), from_date, till_date)) 
+            cat = get_category(cat)
+            pool = pool.strip()
+            owner = owner.strip()
+            
+            if owner not in owners.keys():
+                owners[owner] = {"counter": 0, "last_date": datetime.date.min, "pool": pool}
+            owner_data = owners[owner]    
+
+            t = task.Task("", cat, pool, owner, from_date, till_date)
+            if t.till_date > max_date:
+                max_date = t.till_date
+
+            if t and t.till_date >= now:
+                chart.tasks.append(t)
+                owner_data["counter"] += 1
+
+            if t.till_date > owner_data["last_date"]:
+                owner_data["last_date"] = t.till_date
+
+        for o in owners:
+            data = owners[o]
+            if data["counter"]:
+                continue
+            chart.tasks.append(task.Task("", get_category("Bench"), data["pool"], o, 
+                data["last_date"] + datetime.timedelta(days = 1), max_date))
+                
+
+def replace_table(page, table_title, chart):
+    pattern = re.compile("{csv[^}]+id=%s}([^{]*){csv}" % table_title)
+    s = "{csv:output=wiki|id=%s}\nCategory, Pool, Owner, Start, End\n" % table_title
+    for t in sorted(chart.tasks):
+        s += t.to_csv() + "\n"
+    s += "{csv}"
+
+    return pattern.sub(s, page)
 
 if __name__ == "__main__":
     LOGGER = logger.make_custom_logger()
@@ -63,6 +113,8 @@ if __name__ == "__main__":
         LOGGER.info("Generating chart for location: %s" % location)
         c = chart.OffsetGanttChart("Test Chart")
         parse_table(page["content"], location, c) 
+
+        page["content"] = replace_table(page["content"], location, c)
 
         r = render.Render(600)
         data = r.process(c)
