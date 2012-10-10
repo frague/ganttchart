@@ -37,6 +37,7 @@ def parse_table(page, table_title, chart):
     found = pattern.search(page)
     if found:
         now = datetime.date.today()
+        from_cut = now - datetime.timedelta(days=30)
         table = found.group(1)
         owners = {}
         max_date = datetime.date.min
@@ -60,6 +61,9 @@ def parse_table(page, table_title, chart):
             t = task.Task("", cat, pool, owner, from_date, till_date)
             if t.till_date > max_date:
                 max_date = t.till_date
+
+            if t.from_date < from_cut:
+                t.from_date = from_cut
 
             if t and t.till_date >= now:
                 chart.tasks.append(t)
