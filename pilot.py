@@ -37,7 +37,7 @@ def parse_table(page, table_title, chart):
     found = pattern.search(page)
     if found:
         now = datetime.date.today()
-        from_cut = now - datetime.timedelta(days=30)
+        from_cut = de_weekend(now - datetime.timedelta(days=30))
         table = found.group(1)
         owners = {}
         max_date = datetime.date.min
