@@ -20,7 +20,8 @@ class Task:
         till_date = parse_date(till_date)
 
         if from_date and till_date:
-            if not from_date or not till_date or not from_date < till_date:
+            if not from_date or not till_date or not from_date <= till_date:
+		LOGGER.error("Dates error: from_date=%s, till_date=%s" % (from_date, till_date))
                 raise DatesError
             self.from_date = from_date
             self.till_date = till_date

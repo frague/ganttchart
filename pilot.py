@@ -62,7 +62,7 @@ def parse_table(page, table_title, chart):
             if t.till_date > max_date:
                 max_date = t.till_date
 
-            if t.from_date < from_cut:
+            if t.from_date < from_cut and t.till_date > from_cut:
                 t.from_date = from_cut
 
             if t and t.till_date >= now:
@@ -76,8 +76,11 @@ def parse_table(page, table_title, chart):
             data = owners[o]
             if data["counter"]:
                 continue
+            if max_date - data["last_date"] <= datetime.timedelta(days=1):
+                max_date = now + datetime.timedelta(weeks=2)
+
             chart.tasks.append(task.Task("", get_category("Bench"), data["pool"], o, 
-                data["last_date"] + datetime.timedelta(days = 1), max_date))
+                data["last_date"] + datetime.timedelta(days=1), max_date))
                 
 
 def replace_table(page, table_title, chart):
