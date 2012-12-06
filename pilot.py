@@ -6,7 +6,7 @@ from wikiapi import xmlrpc
 from utils import *
 
 colors = [
-        "#00CCFF", "#CCFFFF", "#CCFFCC", "#FFFF99",  
+        "#00CCFF", "#CCFFFF", "#88FFA4", "#FFFF99",  
         "#99CCFF", "#FF99CC", "#CC99FF", "#FFCC99",  
         "#3366FF", "#33CCCC", "#99CC00", "#FFCC00",
         "#FF9900", "#FF6600", "#666699", "#969696",  
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     	LOGGER.info("No page/schemes updates needed")
     	exit() 
 
-    for location in ["Saratov", "Kharkov"]:
+    for location in ["Saratov", "Kharkov", "Moscow"]:
         LOGGER.info("Generating chart for location: %s" % location)
         c = chart.OffsetGanttChart("Test Chart")
         parse_table(page["content"], location, c) 
