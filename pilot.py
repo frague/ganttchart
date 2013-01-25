@@ -116,7 +116,7 @@ if __name__ == "__main__":
     	LOGGER.info("No page/schemes updates needed")
     	exit() 
 
-    for location in ["Saratov", "Kharkov", "Moscow"]:
+    for location in ["Saratov", "Kharkov", "Moscow", "Poznan"]:
         LOGGER.info("Generating chart for location: %s" % location)
         c = chart.OffsetGanttChart("Test Chart")
         parse_table(page["content"], location, c) 
