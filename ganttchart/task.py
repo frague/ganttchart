@@ -16,15 +16,14 @@ class Task:
         self.pool = pool
         self.category = category
 
-        from_date = parse_date(from_date)
-        till_date = parse_date(till_date)
+        self.from_date = parse_date(from_date)
+        self.till_date = parse_date(till_date)
 
         if from_date and till_date:
-            if not from_date or not till_date or not from_date <= till_date:
-		LOGGER.error("Dates error: from_date=%s, till_date=%s" % (from_date, till_date))
-                raise DatesError
-            self.from_date = from_date
-            self.till_date = till_date
+            if not self.from_date or not self.till_date or not self.from_date <= self.till_date:
+                LOGGER.error("Dates error: from_date=%s, till_date=%s" % (from_date, till_date))
+                raise DatesError("Dates error: from_date=%s, till_date=%s" % (from_date, till_date))
+
         if depends_on and isinstance(depends_on, Task):
             self.depends_on = depends_on
 
