@@ -134,7 +134,7 @@ if __name__ == "__main__":
     	LOGGER.info("No page/schemes updates needed")
     	exit() 
 
-    for location in ["Saratov", "Kharkov", "Moscow", "Poznan"]:
+    for location in ["Saratov", "Kharkov", "Moscow", "Poznan", "NN"]:
         LOGGER.info("Generating chart for location: %s" % location)
         c = chart.OffsetGanttChart("Test Chart")
         
@@ -142,7 +142,7 @@ if __name__ == "__main__":
             page["content"] = replace_table(page["content"], location, c)
             r = render.Render(600)
             data = r.process(c)
-            wiki_api.upload_attachment(page["id"], location + ".png", "image/png", data)
+            wiki_api.upload_attachment(page["id"], location.strip() + ".png", "image/png", data)
 
     write_file("updated.txt", (now + datetime.timedelta(minutes=10)).strftime("%x %X"))
     page["content"] = re.sub("Last update: [^<]*", "Last update: %s" % datetime.datetime.now().strftime("%d/%m/%Y %H:%I"), page["content"])
