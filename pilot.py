@@ -32,14 +32,20 @@ def get_category(name):
         categories[name] = category.Category(name, color)
     return categories[name]
 
+def make_macro(name):
+    return "<ac:macro ac:name=\"%s\">([^m]|m[^a]|ma[^c]|mac[^r]|macr[^o])+</ac:macro>" % name
+
 def parse_table(page, table_title, chart, errors=None):
-    pattern = re.compile("{csv[^}]+id=%s}([^{]*){csv}" % table_title)
+    pattern = re.compile("<ac:parameter ac:name=\"id\">%s</ac:parameter>([^<]|<[^\!])*<\!\[CDATA\[(([^\]]|\][^\]])*)\]\]>" % (table_title), re.MULTILINE)
     found = pattern.search(page)
     result = True
     if found:
         now = datetime.date.today()
         from_cut = de_weekend(now - datetime.timedelta(days=30))
-        table = found.group(1)
+        table = found.group(2)
+
+        LOGGER.debug("CSV data found for %s: %s" % (table_title, table))
+
         owners = {}
         max_date = datetime.date.min
         for line in remove_non_ascii(table).split("\n"):
@@ -103,9 +109,6 @@ def replace_table(page, table_title, chart):
 
     return pattern.sub(s, page)
 
-def make_macro(name):
-    return "<ac:macro ac:name=\"%s\">([^m]|m[^a]|ma[^c]|mac[^r]|macr[^o])+</ac:macro>" % name
-
 if __name__ == "__main__":
     LOGGER = logger.make_custom_logger()
     config = get_config()
@@ -119,6 +122,8 @@ if __name__ == "__main__":
     # <ac:macro ac:name="warning"><ac:rich-text-body><p>&nbsp;</p></ac:rich-text-body></ac:macro>
     page["content"] = re.sub(make_macro("warning"), "", page["content"])
     errors = []
+
+    LOGGER.debug(page["content"])
 
     try:
     	cache_date = datetime.datetime.strptime(read_file("updated.txt"), "%x %X")
