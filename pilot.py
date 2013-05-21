@@ -21,7 +21,7 @@ def remove_non_ascii(s):
     return "".join(i for i in s if ord(i) < 128)
 
 def get_category(name):
-    global color_index
+    global color_index, stats
 
     if name not in categories:
         if name in predefined:
@@ -30,12 +30,17 @@ def get_category(name):
             c = category.Category(name, colors[color_index])
             color_index += 1
         categories[name] = c
+
+    if categories[name].is_predefined:
+        stats[name] = (stats[name] + 1) if name in stats else 0
     return categories[name]
 
 def make_macro(name):
     return "<ac:macro ac:name=\"%s\">([^m]|m[^a]|ma[^c]|mac[^r]|macr[^o])+</ac:macro>" % name
 
 def parse_table(page, table_title, chart, errors=None):
+    global stats
+
     pattern = re.compile("<ac:parameter ac:name=\"id\">%s</ac:parameter>([^<]|<[^\!])*<\!\[CDATA\[(([^\]]|\][^\]])*)\]\]>" % (table_title), re.MULTILINE)
     found = pattern.search(page)
     result = True
@@ -139,7 +144,12 @@ if __name__ == "__main__":
     	LOGGER.info("No page/schemes updates needed")
     	exit() 
 
-    for location in ["Saratov", "Kharkov", "Moscow", "Poznan", "NN"]:
+    global_stats = {}
+    locations = ["Saratov", "Kharkov", "Moscow", "NN", "Poznan"]
+
+    for location in locations:
+        stats = {}
+
         LOGGER.info("Generating chart for location: %s" % location)
         c = chart.OffsetGanttChart("Test Chart")
         
@@ -149,8 +159,16 @@ if __name__ == "__main__":
             data = r.process(c)
             wiki_api.upload_attachment(page["id"], location.strip() + ".png", "image/png", data)
 
+        global_stats[location] = stats
+        LOGGER.debug("Stats for %s: %s" % (location, stats))
+
     write_file("updated.txt", (now + datetime.timedelta(minutes=10)).strftime("%x %X"))
     page["content"] = re.sub("Last update: [^<]*", "Last update: %s" % datetime.datetime.now().strftime("%d/%m/%Y %H:%I"), page["content"])
+
+    # Bench Chart
+    benches = [str(global_stats[l]["Bench"]) if "Bench" in global_stats[l] else "0" for l in locations]
+    page["content"] = re.sub("chd=t:[^&]+", "chd=t:%s" % ",".join(benches), page["content"])
+    page["content"] = re.sub("chl=[^&]+", "chl=%s" % "|".join(benches), page["content"])
 
     if errors:
         LOGGER.error(errors)
