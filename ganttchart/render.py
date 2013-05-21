@@ -44,19 +44,35 @@ class Render:
         self.draw.line((x + width, y + height, x + width, y), fill=fill)
         self.draw.line((x + width, y, x, y), fill=fill)
 
-    def opaque_rectangle(self, x, y, width, height, fill="#000000", opacity=128):
+    def opaque_rectangle(self, x, y, width, height, fill="#000000", opacity=128, pattern=False):
         LOGGER.debug("Draw opaque rectangle (%s, %s) - (%s, %s)" % (x, y, width, height))
         color_layer = Image.new("RGBA", self.image.size, fill)
         alpha_mask = Image.new("L", self.image.size, 0)
         alpha_mask_draw = ImageDraw.Draw(alpha_mask)
         alpha_mask_draw.rectangle((x, y, x + width, y + height), opacity)   # Opacity here?
         self._init_image(Image.composite(color_layer, self.image, alpha_mask))
+        if pattern:
+            pat_mask = Image.new("L", (width, height), 0)
+            pat_mask_draw = ImageDraw.Draw(pat_mask)
+            
+            pattern_size = 8
+            offset = 14
+
+            line_offset = -pattern_size
+            while line_offset < width:
+                pat_mask_draw.line((line_offset + 20, -pattern_size, line_offset, height + pattern_size), 40, pattern_size)
+                line_offset += pattern_size + offset
+            final_mask = Image.new("L", self.image.size, 0)
+            final_mask.paste(pat_mask, (x, y, x + width, y + height))
+
+            white = Image.new("RGBA", self.image.size, "#FFFFFF")
+            self._init_image(Image.composite(white, self.image, final_mask))
 
     def draw_task(self, task, y, opacity=200):
         LOGGER.debug("Drawing task: %s" % task)
         x = 20 + self.left_offset + self.coords[task.from_date]
         w = int(self.coords[self.de_weekend(task.till_date, False)] - self.coords[self.de_weekend(task.from_date)] + self.day_length)
-        self.opaque_rectangle(x + 1, y + 1, w - 2, self.task_height - 5, task.category.color, opacity)
+        self.opaque_rectangle(x + 1, y + 1, w - 2, self.task_height - 5, task.category.color, opacity, task.category.is_predefined)
         self.box(x, y, w - 1, self.task_height - 4)
         self.text(x + 2, y - 2, task.category.title)
 

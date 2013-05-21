@@ -13,7 +13,7 @@ colors = [
         "#003300", "#339966", "#003300", "#333300",  
         "#993300", "#993366", "#333399", "#333333"]
 
-predefined = {"Bench": "#FF8080", "Vacation": "#D0D0D0"}
+predefined = {"Bench": "#FF8080", "Vacation": "#D0D0D0", "Training": "#A8D237", "Ready": "#F88237"}
 categories = {}
 color_index = 0
     
@@ -25,11 +25,11 @@ def get_category(name):
 
     if name not in categories:
         if name in predefined:
-            color = predefined[name]
+            c = category.Category(name if name != "Ready" else "Ready for a new project", predefined[name], True)
         else:
-            color = colors[color_index]
+            c = category.Category(name, colors[color_index])
             color_index += 1
-        categories[name] = category.Category(name, color)
+        categories[name] = c
     return categories[name]
 
 def make_macro(name):
