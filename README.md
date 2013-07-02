@@ -15,3 +15,9 @@ RnD,	BA,	George Willson,	31/05/2013,	01/10/2013
 Vacation,	BA,	George Willson,	2/07/2013,	14/07/2013
 ......
 ```
+where
+* **Category** - projects (differentiated by colour)
+* **Pool** - pools of resources (engineering specialities in provided example). All tasks are groupped by pools and sorted by Owner
+* **Owner** - assignee
+* **Start** - assignment start date
+* **End** - assignment end date
