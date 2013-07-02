@@ -1,23 +1,28 @@
 Category, Pool, Owner, Start, End
-Bench,	BA,	Anastasia Pospelova (T2),	24/06/2013,	01/08/2013
-RnD,	BA,	Evgenia Shumakher (T2),	31/05/2013,	01/08/2013
-Lanit,	BA,	Evgenia Shumakher (T2),	05/07/2013,	01/08/2013
-RnD,	DM,	Artem Andreev (D1),	31/05/2013,	01/08/2013
-AT&T Foundry,	Deployment,	Andrey Kirillochkin (T2),	01/07/2013,	01/08/2013
-Crowbar,	Deployment,	Eugene Shurmin (T2),	31/05/2013,	01/08/2013
-AT&T Foundry,	Deployment,	Gleb Galkin (T2),	01/07/2013,	01/08/2013
-Coraid,	Deployment,	Mike Kochetov (T2),	01/07/2013,	01/08/2013
-Bench,	Deployment,	Nikita Gubenko (T2),	08/07/2013,	01/08/2013
-Crowbar,	Deployment,	Sergey Yudin (T3),	31/05/2013,	01/08/2013
-FUEL 3 on Ubuntu,	Deployment,	Stanislav Osipov (T3),	31/05/2013,	12/07/2013
-Coraid,	Development,	Alexey Zasimov (T2),	01/07/2013,	01/08/2013
-RnD,	Development,	Anastasia Latynskaya (T1),	31/05/2013,	01/08/2013
-RnD,	Development,	Anton Frolov (T2),	31/05/2013,	01/08/2013
-RnD,	Development,	Eugene Frolov (T2),	05/06/2013,	01/08/2013
-Coraid,	Development,	Nikolay Sobolevsky (T2),	01/07/2013,	01/08/2013
-Bench,	Development,	Rustam Baigulin (T2),	15/07/2013,	01/08/2013
-AT&T Foundry,	Development,	Sergey Vilgelm (T2),	01/07/2013,	01/08/2013
-AT&T Foundry,	Development,	Yaroslav Isakov (T2),	01/07/2013,	01/08/2013
-Bench,	QA,	Ekaterina Pavlova (T2),	25/06/2013,	01/08/2013
-Coraid,	QA,	Maxim Grishkin (T2),	01/07/2013,	01/08/2013
-AT&T Foundry,	QA,	Pavel Zakatov (T2),	01/07/2013,	01/08/2013
+Apple,	BA,	James Cook,	24/06/2013,	01/08/2013
+Intel,	BA,	James Cook,	2/08/2013,	01/09/2013
+Microsoft,	BA,	James Cook,	2/09/2013,	01/10/2013
+RnD,	BA,	George Willson,	31/05/2013,	01/10/2013
+Vacation,	BA,	George Willson,	2/07/2013,	14/07/2013
+Dell,	BA,	Ian Makovsky,	05/06/2013,	01/08/2013
+Google,	BA,	Ian Makovsky,	01/07/2013,	01/10/2013
+Apple,	DM,	Ivan Smirnov,	31/05/2013,	01/10/2013
+Dell,	Deployment,	Lee Chow,	01/07/2013,	15/09/2013
+Vacation,	Deployment,	Lee Chow,	07/08/2013,	10/08/2013
+Dell,	Deployment,	John Doe,	05/06/2013,	01/09/2013
+Apple,	Deployment,	John Doe,	02/09/2013,	01/10/2013
+Intel,	Deployment,	Mike Smith,	01/09/2013,	20/09/2013
+Bench,	Deployment,	Nikita Ivanoff, 24/06/2013,	01/10/2013
+Samsung,	Deployment,	Sergey Kirillov,	31/05/2013,	01/08/2013
+Google,	Deployment,	Mike Zimmerman,	31/05/2013,	05/06/2013
+Google,	Development,	Alexey Pak,	31/05/2013,	11/09/2013
+RnD,	Development,	Anastasia Lapina,	31/05/2013,	01/10/2013
+RnD,	Development,	Anton Fedorov,	31/05/2013,	01/10/2013
+RnD,	Development,	Michael Zoth,	05/06/2013,	01/08/2013
+Samsung,	Development,	Keith McEntire,	31/05/2013,	01/10/2013
+Bench,	Development,	Karen Pogosyan,	15/07/2013,	01/08/2013
+Apple,	Development,	Mark Schtoss,	01/07/2013,	01/08/2013
+Apple,	Development,	David Moor,	02/08/2013,	22/09/2013
+Bench,	QA,	Ekaterina Andreeva,	25/06/2013,	01/08/2013
+Google,	QA,	Maxim Govorov,	01/07/2013,	10/08/2013
+Apple,	QA,	Pavel Kireev,	11/08/2013,	11/09/2013

@@ -85,14 +85,17 @@ class BaseDataSource:
     # For users with no active tasks create Bench tasks
     def _benchify(self, chart):
         for owner in self.owners:
-            data = self.owners[owner]
-            if data.counter:
+            owner_data = self.owners[owner]
+            if owner_data.counter:
                 continue
-            if self.max_date - data.last_date <= datetime.timedelta(days=1):
-                self.max_date = now + datetime.timedelta(weeks=2)
 
-            chart.tasks.append(task.Task("", self._get_category("Bench"), data.pool, owner, 
-                data.last_date + datetime.timedelta(days=1), self.max_date))
+            if self.max_date - owner_data.last_date <= datetime.timedelta(days=1):
+                self.max_date = self.now + datetime.timedelta(weeks=2)
+
+            t = task.Task("", self._get_category("Bench"), owner_data.pool, owner, 
+                owner_data.last_date + datetime.timedelta(days=1), self.max_date)
+            LOGGER.error("Bench task: %s" % t)
+            chart.tasks.append(t)
 
 # Parsing css data
 class CsvDataSource(BaseDataSource):
@@ -113,4 +116,4 @@ class CsvDataSource(BaseDataSource):
                 continue
             if t:
                 chart.tasks.append(t)
-            self._benchify(chart)
+        self._benchify(chart)

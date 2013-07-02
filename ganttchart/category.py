@@ -26,9 +26,10 @@ def pick_color():
         category_color_index = 0
     return result
 
+# Represents tasks category
 class Category:
-    """ Represents tasks category """
     def __init__(self, title, color=None, is_predefined=False):
+        self.replaces = {"Ready for a new project": "Ready"}
         self.title = title
         if color:
             self.color = color
@@ -39,3 +40,10 @@ class Category:
 
     def __repr__(self):
         return "Category: %s (%s)" % (self.title, self.color)
+
+    @property
+    def smart_title(self):
+        if self.is_predefined:
+            if self.title in self.replaces.keys():
+                return self.replaces[self.title]
+        return self.title

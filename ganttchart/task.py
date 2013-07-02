@@ -3,8 +3,8 @@
 from datetime import datetime
 from exceptions import *
 import Image, ImageDraw
-from utils import *
 from logging import getLogger
+from utils import *
 
 LOGGER = getLogger()
 
@@ -39,9 +39,11 @@ class Task:
     def __lt__(self, other):
         return self.key < other.key
 
+
     def __repr__(self):
         return "Task: \"%s\" (%s) [%s-%s]" % (self.title, self.owner, 
                 printable_date(self.from_date), printable_date(self.till_date))
+
     def to_csv(self):
-        return "%s,	%s,	%s,	%s,	%s" % (self.category.title, self.pool, self.owner, 
+        return "%s,	%s,	%s,	%s,	%s" % (self.category.smart_title, self.pool, self.owner, 
                 printable_date(self.from_date), printable_date(self.till_date))
