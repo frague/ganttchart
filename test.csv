@@ -1,0 +1,23 @@
+Category, Pool, Owner, Start, End
+Bench,	BA,	Anastasia Pospelova (T2),	24/06/2013,	01/08/2013
+RnD,	BA,	Evgenia Shumakher (T2),	31/05/2013,	01/08/2013
+Lanit,	BA,	Evgenia Shumakher (T2),	05/07/2013,	01/08/2013
+RnD,	DM,	Artem Andreev (D1),	31/05/2013,	01/08/2013
+AT&T Foundry,	Deployment,	Andrey Kirillochkin (T2),	01/07/2013,	01/08/2013
+Crowbar,	Deployment,	Eugene Shurmin (T2),	31/05/2013,	01/08/2013
+AT&T Foundry,	Deployment,	Gleb Galkin (T2),	01/07/2013,	01/08/2013
+Coraid,	Deployment,	Mike Kochetov (T2),	01/07/2013,	01/08/2013
+Bench,	Deployment,	Nikita Gubenko (T2),	08/07/2013,	01/08/2013
+Crowbar,	Deployment,	Sergey Yudin (T3),	31/05/2013,	01/08/2013
+FUEL 3 on Ubuntu,	Deployment,	Stanislav Osipov (T3),	31/05/2013,	12/07/2013
+Coraid,	Development,	Alexey Zasimov (T2),	01/07/2013,	01/08/2013
+RnD,	Development,	Anastasia Latynskaya (T1),	31/05/2013,	01/08/2013
+RnD,	Development,	Anton Frolov (T2),	31/05/2013,	01/08/2013
+RnD,	Development,	Eugene Frolov (T2),	05/06/2013,	01/08/2013
+Coraid,	Development,	Nikolay Sobolevsky (T2),	01/07/2013,	01/08/2013
+Bench,	Development,	Rustam Baigulin (T2),	15/07/2013,	01/08/2013
+AT&T Foundry,	Development,	Sergey Vilgelm (T2),	01/07/2013,	01/08/2013
+AT&T Foundry,	Development,	Yaroslav Isakov (T2),	01/07/2013,	01/08/2013
+Bench,	QA,	Ekaterina Pavlova (T2),	25/06/2013,	01/08/2013
+Coraid,	QA,	Maxim Grishkin (T2),	01/07/2013,	01/08/2013
+AT&T Foundry,	QA,	Pavel Zakatov (T2),	01/07/2013,	01/08/2013
