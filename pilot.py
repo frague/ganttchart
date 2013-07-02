@@ -11,7 +11,11 @@ colors = [
         "#3366FF", "#33CCCC", "#99CC00", "#FFCC00",
         "#FF9900", "#FF6600", "#8282D0", "#48B5A7",  
         "#477E2A", "#2DAFC4", "#D7A041", "#986E25",  
-        "#993300", "#993366", "#3670A3", "#A33663"]
+        "#993300", "#993366", "#3670A3", "#A33663",
+        "#D9ECA7", "#F3F6B7", "#F8C592", "#F4A586",
+        "#00BFFF", "#00DED1", "#00FA9A", "#AFEEEE", 
+        "#F5DEB3", "#FFD700", "#FA8072", "#E6E6FA"
+        ]
 
 predefined = {"Bench": "#FF8080", "Vacation": "#D0D0D0", "Training": "#A8D237", "Ready": "#F88237"}
 categories = {}
@@ -38,16 +42,19 @@ def get_category(name):
 def make_macro(name):
     return "<ac:macro ac:name=\"%s\">([^m]|m[^a]|ma[^c]|mac[^r]|macr[^o])+</ac:macro>" % name
 
+def csv_pattern(name):
+	return re.compile("(<ac:parameter ac:name=\"id\">%s</ac:parameter>([^<]|<[^\!])*<\!\[CDATA\[)(([^\]]|\][^\]])*)(\]\]>)" % (name), re.MULTILINE)
+
 def parse_table(page, table_title, chart, errors=None):
     global stats
 
-    pattern = re.compile("<ac:parameter ac:name=\"id\">%s</ac:parameter>([^<]|<[^\!])*<\!\[CDATA\[(([^\]]|\][^\]])*)\]\]>" % (table_title), re.MULTILINE)
+    pattern = csv_pattern(table_title)
     found = pattern.search(page)
     result = True
     if found:
         now = datetime.date.today()
         from_cut = de_weekend(now - datetime.timedelta(days=30))
-        table = found.group(2)
+        table = found.group(3)
 
         LOGGER.debug("CSV data found for %s: %s" % (table_title, table))
 
@@ -106,13 +113,18 @@ def parse_table(page, table_title, chart, errors=None):
                 
 
 def replace_table(page, table_title, chart):
-    pattern = re.compile("{csv[^}]+id=%s}([^{]*){csv}" % table_title)
-    s = "{csv:output=wiki|id=%s}\nCategory, Pool, Owner, Start, End\n" % table_title
+    pattern = csv_pattern(table_title)
+    found = pattern.search(page)
+    if not found:
+    	return page
+
+    s = "Category, Pool, Owner, Start, End\n"
     for t in sorted(chart.tasks):
         s += t.to_csv() + "\n"
-    s += "{csv}"
 
-    return pattern.sub(s, page)
+    result = pattern.sub("%s%s%s" % (found.group(1), s, found.group(5)), page)
+    LOGGER.debug(result)
+    return result
 
 if __name__ == "__main__":
     LOGGER = logger.make_custom_logger()
@@ -145,7 +157,7 @@ if __name__ == "__main__":
     	exit() 
 
     global_stats = {}
-    locations = ["Saratov", "Kharkov", "Moscow", "NN", "Poznan"]
+    locations = ["Saratov", "Kharkov", "NN", "Poznan", "Moscow"]
 
     for location in locations:
         stats = {}

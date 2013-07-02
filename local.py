@@ -2,18 +2,18 @@
 
 from ganttchart import chart, task, category, render
 import re, logger, datetime
-from wikiapi import xmlrpc
+from wikiapi import soap
 from utils import *
 
 colors = [
-        "#00CCFF", "#CCFFFF", "#CCFFCC", "#FFFF99",  
+        "#00CCFF", "#CCFFFF", "#88FFA4", "#FFFF99",  
         "#99CCFF", "#FF99CC", "#CC99FF", "#FFCC99",  
         "#3366FF", "#33CCCC", "#99CC00", "#FFCC00",
-        "#FF9900", "#FF6600", "#666699", "#969696",  
-        "#003300", "#339966", "#003300", "#333300",  
-        "#993300", "#993366", "#333399", "#333333"]
+        "#FF9900", "#FF6600", "#8282D0", "#48B5A7",  
+        "#477E2A", "#2DAFC4", "#D7A041", "#986E25",  
+        "#993300", "#993366", "#3670A3", "#A33663"]
 
-predefined = {"Bench": "#FF8080", "Vacation": "#D0D0D0"}
+predefined = {"Bench": "#FF8080", "Vacation": "#D0D0D0", "Training": "#A8D237", "Ready": "#F88237"}
 categories = {}
 color_index = 0
     
@@ -21,30 +21,35 @@ def remove_non_ascii(s):
     return "".join(i for i in s if ord(i) < 128)
 
 def get_category(name):
-    global color_index
+    global color_index, stats
 
     if name not in categories:
         if name in predefined:
-            c = category.Category(name, predefined[name], True)
+            c = category.Category(name if name != "Ready" else "Ready for a new project", predefined[name], True)
         else:
             c = category.Category(name, colors[color_index])
             color_index += 1
         categories[name] = c
+
+    if categories[name].is_predefined:
+        stats[name] = (stats[name] + 1) if name in stats else 0
     return categories[name]
 
 def make_macro(name):
     return "<ac:macro ac:name=\"%s\">([^m]|m[^a]|ma[^c]|mac[^r]|macr[^o])+</ac:macro>" % name
 
 def parse_table(page, table_title, chart, errors=None):
-    pattern = re.compile("<ac:parameter ac:name=\"id\">%s</ac:parameter>([^<]|<[^\!])*<\!\[CDATA\[(([^\]]|\][^\]])*)\]\]>" % (table_title), re.MULTILINE)
+    global stats
+
+    pattern = re.compile("<table id=\"%s\"[^>]*><tbody>([^<]|<[^/]|</[^t]|</t[^b])*</tbody>" % table_title, re.MULTILINE)
     found = pattern.search(page)
     result = True
     if found:
         now = datetime.date.today()
         from_cut = de_weekend(now - datetime.timedelta(days=30))
-        table = found.group(2)
+        table = found.group(1)
 
-        LOGGER.debug("CSV data found for %s: %s" % (table_title, table))
+        LOGGER.debug("Tabular data found for %s: %s in %s" % (table_title, table, page))
 
         owners = {}
         max_date = datetime.date.min
@@ -98,20 +103,31 @@ def parse_table(page, table_title, chart, errors=None):
                 data["last_date"] + datetime.timedelta(days=1), max_date))
 
         return result
+                
+def replace_table(page, table_title, chart):
+    pattern = re.compile("{csv[^}]+id=%s}([^{]*){csv}" % table_title)
+    s = "{csv:output=wiki|id=%s}\nCategory, Pool, Owner, Start, End\n" % table_title
+    for t in sorted(chart.tasks):
+        s += t.to_csv() + "\n"
+    s += "{csv}"
+
+    return pattern.sub(s, page)
 
 if __name__ == "__main__":
     LOGGER = logger.make_custom_logger()
     config = get_config()
 
-    wiki_api = xmlrpc.api(config["wiki_xmlrpc"])
+    wiki_api = soap.api(config["wiki_soap"])
 
     wiki_api.connect(config["wiki_login"], config["wiki_password"])
-    page = wiki_api.get_page("CCCOE", "Resources Utilization")
+    #page = wiki_api.get_page("CCCOE", "Resources Utilization")
+    page = wiki_api.render_content(wiki_api.get_page("~nbogdanov", "Embedding test"))
+    LOGGER.debug("Rendered page: %s" % page)
 
-    for location in ["Kharkov"]:
+    for location in ["Embedded"]:
         LOGGER.info("Generating chart for location: %s" % location)
         c = chart.OffsetGanttChart("Test Chart")
-        parse_table(page["content"], location, c) 
+        parse_table(page, location, c) 
 
         r = render.Render(600)
         data = r.process(c)

@@ -19,8 +19,11 @@ def parse_date(text):
     try:
         d = datetime.datetime.strptime(str(text).strip(), "%d/%m/%Y").date()
     except:
-        LOGGER.error("%s FAILED" % log)
-        return None
+        try:
+            d = datetime.datetime.strptime(str(text).strip(), "%d.%m.%Y").date()
+        except:
+            LOGGER.error("%s FAILED" % log)
+            return None
     LOGGER.debug("%s returned %s" % (log, d))
     return de_weekend(d)
 
