@@ -68,12 +68,32 @@ class Render:
             white = Image.new("RGBA", self.image.size, "#FFFFFF")
             self._init_image(Image.composite(white, self.image, final_mask))
 
-    def draw_task(self, task, y, opacity=200):
+    def draw_task(self, task, y, opacity=200, arrow_from_task=None):
         LOGGER.debug("Drawing task: %s" % task)
         x = 20 + self.left_offset + self.coords[task.from_date]
         w = int(self.coords[self.de_weekend(task.till_date, False)] - self.coords[self.de_weekend(task.from_date)] + self.day_length)
         self.opaque_rectangle(x + 1, y + 1, w - 2, self.task_height - 5, task.category.color, opacity, task.category.is_predefined)
         self.box(x, y, w - 1, self.task_height - 4)
+        if (arrow_from_task and arrow_from_task.till_date < task.till_date):
+            # Draw arrow from predecessing taks
+            fill = "#666666"
+
+            half_height = self.task_height / 2
+            y_middle = y + half_height - 2
+            self.draw.line((x - 6, y_middle, x - 1, y_middle), fill)
+            self.draw.line((x - 3, y_middle - 2, x - 1, y_middle), fill) 
+            self.draw.line((x - 3, y_middle + 2, x - 1, y_middle), fill) 
+
+            x_previous = 20 + self.left_offset + self.coords[arrow_from_task.till_date]
+
+            if self.coords[self.de_weekend(task.from_date)] - self.coords[self.de_weekend(arrow_from_task.till_date)] > 10:
+                self.draw.line((x_previous, y_middle, x_previous, y_middle - half_height - 1), fill)
+                self.draw.line((x - 6, y_middle, x_previous, y_middle), fill)
+            else:
+                self.draw.line((x - 6, y_middle, x - 6, y - 2), fill)
+                self.draw.line((x - 6, y - 2, x_previous + 10, y - 2), fill)
+                self.draw.line((x_previous + 10, y - 2, x_previous + 10, y - half_height - 2), fill)
+                self.draw.line((x_previous + 10, y - half_height - 2, x_previous + 5, y - half_height - 2), fill)
         self.text(x + 2, y - 2, task.category.title)
 
     def milestone(self, date, fill="#808080", textfill="#808080"):

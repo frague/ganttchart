@@ -11,7 +11,8 @@ if __name__ == "__main__":
     LOGGER.debug("Rendered page: %s" % data)
 
     source = datasource.CsvDataSource()
-    c = chart.OffsetGanttChart("Test Chart")
+#    c = chart.OffsetGanttChart("Test Chart")
+    c = chart.GanttChart("Test Chart")
     source.parse(data, c)
     r = render.Render(600)
     image_rendered = r.process(c)

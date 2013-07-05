@@ -47,10 +47,12 @@ class GanttChart:
                     render.opaque_rectangle(8, y - 1, 11 + render.left_offset + render.active_width, render.task_height * tasks_num - 1, "#0040FF", 32)
                 render.text(10, y - 2, n)
                 # Tasks dates
+                previous_task = None
                 for d in sorted(owner_tasks.iterkeys()):
                     # Tasks
                     for task in owner_tasks[d]:
-                    	render.draw_task(task, y)
+                    	render.draw_task(task, y, 200, previous_task)
+                        previous_task = task
                     	y += render.task_height
                 i += 1
 
